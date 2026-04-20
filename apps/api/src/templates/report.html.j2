@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório CYT Finance</title>
+  <style>
+    @page { size: A4; margin: 22mm 18mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+      color: #0f172a;
+      font-size: 10pt;
+      line-height: 1.4;
+    }
+    h1 { font-size: 24pt; margin: 0 0 2mm 0; font-family: Georgia, serif; color: #0f172a; }
+    h2 { font-size: 12pt; margin: 8mm 0 3mm; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 2mm; }
+    h3 { font-size: 10pt; margin: 4mm 0 2mm; color: #475569; }
+    .muted { color: #64748b; font-size: 9pt; }
+    .summary { display: flex; gap: 6mm; margin: 6mm 0; }
+    .card {
+      flex: 1;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 4mm;
+      padding: 4mm;
+    }
+    .card .label { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5pt; color: #64748b; }
+    .card .value { font-size: 16pt; font-weight: 700; margin-top: 1mm; }
+    .green { color: #047857; }
+    .red { color: #b91c1c; }
+    .blue { color: #1d4ed8; }
+    table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+    th, td { padding: 2mm 3mm; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f1f5f9; color: #334155; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5pt; }
+    td.right, th.right { text-align: right; }
+    .cat-swatch { display: inline-block; width: 3mm; height: 3mm; border-radius: 50%; margin-right: 2mm; vertical-align: middle; }
+    .tag { display: inline-block; font-size: 7pt; padding: 0.5mm 1.5mm; border-radius: 1mm; background: #e2e8f0; color: #475569; }
+    .tag.pending { background: #fef3c7; color: #92400e; }
+    footer { margin-top: 10mm; text-align: center; font-size: 7pt; color: #94a3b8; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>CYT Finance</h1>
+    <p class="muted">
+      Relatório de <strong>{{ workspace.nome }}</strong> · período
+      {{ periodo_inicio | date_br }} a {{ periodo_fim | date_br }}
+    </p>
+  </header>
+
+  <section class="summary">
+    <div class="card">
+      <div class="label">Entradas</div>
+      <div class="value green">{{ summary.entradas | money }}</div>
+    </div>
+    <div class="card">
+      <div class="label">Saídas</div>
+      <div class="value red">{{ summary.saidas | money }}</div>
+    </div>
+    <div class="card">
+      <div class="label">Resultado</div>
+      <div class="value {% if summary.resultado >= 0 %}green{% else %}red{% endif %}">
+        {{ summary.resultado | money }}
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">Investido</div>
+      <div class="value blue">{{ summary.total_investimentos | money }}</div>
+    </div>
+  </section>
+
+  {% if categorias %}
+  <section>
+    <h2>Gastos por categoria</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Categoria</th>
+          <th class="right">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in categorias %}
+        <tr>
+          <td>
+            <span class="cat-swatch" style="background: {{ c.cor }}"></span>
+            {{ c.nome }}
+          </td>
+          <td class="right">{{ c.valor | money }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  <section>
+    <h2>Transações</h2>
+    {% if transacoes %}
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Categoria</th>
+          <th>Cartão</th>
+          <th class="right">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in transacoes %}
+        <tr>
+          <td>{{ t.data | date_br }}</td>
+          <td>
+            {{ t.descricao }}
+            {% if t.parcelas_total > 1 %}
+              <span class="tag">{{ t.parcela_atual }}/{{ t.parcelas_total }}</span>
+            {% endif %}
+            {% if not t.paga %}
+              <span class="tag pending">pendente</span>
+            {% endif %}
+          </td>
+          <td>{{ t.categoria.nome if t.categoria else '—' }}</td>
+          <td>
+            {% if t.cartao %}
+              {{ t.cartao.nome }} ••••{{ t.cartao.ultimos_digitos }}
+            {% else %}—{% endif %}
+          </td>
+          <td class="right {% if t.tipo == 'entrada' %}green{% else %}red{% endif %}">
+            {{ '+' if t.tipo == 'entrada' else '-' }} {{ t.valor | money }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="muted">Nenhuma transação no período.</p>
+    {% endif %}
+  </section>
+
+  {% if investimentos %}
+  <section>
+    <h2>Investimentos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Categoria</th>
+          <th class="right">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in investimentos %}
+        <tr>
+          <td>{{ i.data | date_br }}</td>
+          <td>{{ i.descricao }}</td>
+          <td>{{ i.categoria }}</td>
+          <td class="right blue">{{ i.valor | money }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  {% if auditoria %}
+  <section>
+    <h2>Auditoria</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Data/Hora</th>
+          <th>Usuário</th>
+          <th>Ação</th>
+          <th>Entidade</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in auditoria %}
+        <tr>
+          <td>{{ a.created_at }}</td>
+          <td>{{ a.user.nome if a.user else 'sistema' }}</td>
+          <td>{{ a.acao }}</td>
+          <td>{{ a.entidade }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  <footer>
+    Gerado por CYT Finance · {{ periodo_fim | date_br }}
+  </footer>
+
+</body>
+</html>

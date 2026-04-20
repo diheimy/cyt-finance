@@ -1,0 +1,53 @@
+project_id = "cyt-finance"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.pooler]
+enabled = false
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true
+enable_confirmations = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[auth.external.google]
+enabled = false
+client_id = ""
+secret = ""
+redirect_uri = ""
+
+[functions.send-invite-email]
+verify_jwt = false
+
+[analytics]
+enabled = false

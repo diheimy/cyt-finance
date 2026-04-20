@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.venv/
+__pycache__/
+*.egg-info/
+dist/
+build/
+.turbo/
+
+# Env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Testing / coverage
+coverage/
+.coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
+
+# Build artifacts
+*.tsbuildinfo
+.next/
+.vercel/
+.fly/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*

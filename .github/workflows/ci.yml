@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  web:
+    name: Web (lint + typecheck + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @cyt/web lint
+      - run: pnpm --filter @cyt/web typecheck
+      - run: pnpm --filter @cyt/web test -- --run
+      - run: pnpm --filter @cyt/web build
+
+  api:
+    name: API (ruff + mypy + pytest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install system libs for WeasyPrint
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libcairo2
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: mypy src
+      - run: pytest -q
+
+  rls:
+    name: RLS tests (pytest contra Supabase local)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: supabase start
+      - run: supabase db reset
+      - name: Export Supabase env
+        run: |
+          echo "SUPABASE_URL=http://localhost:54321" >> $GITHUB_ENV
+          echo "SUPABASE_ANON_KEY=$(supabase status -o env | awk -F= '/ANON_KEY/{print $2}' | tr -d '\"')" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | awk -F= '/SERVICE_ROLE_KEY/{print $2}' | tr -d '\"')" >> $GITHUB_ENV
+      - run: |
+          cd apps/api
+          pip install -e ".[dev]"
+          pytest tests/test_rls.py -v
