@@ -13,7 +13,10 @@ export default function CreateWorkspace() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!user) return;
+    if (!user) {
+      setError('Sessão ainda carregando, aguarde…');
+      return;
+    }
     try {
       await create.mutateAsync({ nome: nome.trim(), ownerId: user.id });
       navigate('/', { replace: true });

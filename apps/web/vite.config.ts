@@ -4,10 +4,22 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
 
 export default defineConfig({
+  envDir: path.resolve(__dirname, '..', '..'),
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: true
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 4173,
+    strictPort: true
+  },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: { enabled: true },
       includeAssets: ['favicon.svg', 'robots.txt', 'icons/*.png'],
       manifest: {
         name: 'CYT Finance',

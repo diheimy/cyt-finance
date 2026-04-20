@@ -10,16 +10,21 @@ import ExportPdfButton from '@/components/ExportPdfButton';
 import { currentMonthKey, formatMoney } from '@/utils/format';
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { data: workspaces, isLoading: loadingWs } = useWorkspaces(user?.id);
   const { active } = useActiveWorkspace(workspaces);
   const [month, setMonth] = useState(currentMonthKey());
 
   const dash = useDashboard(active?.id, month);
 
+  // Espera auth terminar ANTES de decidir redirect. Sem esse gate, user
+  // recém-criado cai em loop: user ainda undefined → useWorkspaces disabled
+  // → data=undefined → Navigate to /create-workspace → cria → volta pra /
+  // → user ainda undefined → redireciona de novo.
+  if (authLoading || !user) return <p className="p-6">Carregando…</p>;
   if (loadingWs) return <p className="p-6">Carregando…</p>;
   if (!workspaces || workspaces.length === 0) return <Navigate to="/create-workspace" replace />;
-  if (!active) return <p className="p-6">Nenhum workspace ativo.</p>;
+  if (!active) return <p className="p-6">Carregando workspace…</p>;
 
   const { mes, caixa, bars, donut, history } = dash.summary;
   const monthLabel = new Date(`${month}-01T00:00:00`).toLocaleDateString('pt-BR', {
