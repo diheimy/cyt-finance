@@ -44,6 +44,9 @@ def _make_user(
     client = create_client(url, anon_key)
     session = client.auth.sign_in_with_password({"email": email, "password": password})
     assert session.user is not None
+    # Propaga o JWT do usuário para PostgREST e Functions para que auth.uid()
+    # funcione corretamente dentro das policies RLS.
+    client.postgrest.auth(session.session.access_token)
     return TestUser(client=client, user_id=session.user.id, email=email)
 
 
