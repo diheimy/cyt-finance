@@ -38,6 +38,10 @@ supabase/.branches/
 .vercel/
 .fly/
 
+# Claude Code runtime
+.claude/scheduled_tasks.lock
+.claude/tasks/
+
 # Logs
 *.log
 npm-debug.log*
