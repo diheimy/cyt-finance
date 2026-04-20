@@ -17,23 +17,28 @@ export function useWorkspaces(userId: string | undefined) {
     queryKey: ['workspaces', userId],
     enabled: !!userId,
     queryFn: async (): Promise<Workspace[]> => {
-      const { data, error } = await supabase
+      // 2 queries separadas em vez de JOIN aninhado — evita ambiguidade
+      // de shape do PostgREST (objeto vs array) entre versões do supabase-js.
+      const { data: mems, error: e1 } = await supabase
         .from('workspace_members')
-        .select('role, workspace:workspaces(id, nome, owner_id, created_at)')
+        .select('workspace_id, role')
         .eq('user_id', userId!);
-      if (error) throw error;
-      type Row = {
-        role: 'owner' | 'editor' | 'viewer';
-        workspace: {
-          id: string;
-          nome: string;
-          owner_id: string;
-          created_at: string;
-        } | null;
-      };
-      return ((data ?? []) as unknown as Row[])
-        .filter((r): r is Row & { workspace: NonNullable<Row['workspace']> } => r.workspace !== null)
-        .map((r) => ({ ...r.workspace, role: r.role }));
+      if (e1) throw e1;
+      const rows = mems ?? [];
+      if (rows.length === 0) return [];
+      const ids = rows.map((r) => r.workspace_id);
+      const { data: wss, error: e2 } = await supabase
+        .from('workspaces')
+        .select('id, nome, owner_id, created_at')
+        .in('id', ids);
+      if (e2) throw e2;
+      const byId = new Map((wss ?? []).map((w) => [w.id, w]));
+      return rows
+        .map((r) => {
+          const w = byId.get(r.workspace_id);
+          return w ? { ...w, role: r.role } : null;
+        })
+        .filter((w): w is Workspace => w !== null);
     }
   });
 }
