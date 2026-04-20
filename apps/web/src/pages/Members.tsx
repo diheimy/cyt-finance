@@ -33,11 +33,11 @@ export default function Members() {
     queryFn: async (): Promise<Member[]> => {
       const { data, error } = await supabase
         .from('workspace_members')
-        .select('user_id, role, joined_at, profile:profiles(id, nome, avatar_url)')
+        .select('user_id, role, joined_at, profile:profiles!workspace_members_user_id_fkey(id, nome, avatar_url)')
         .eq('workspace_id', active!.id)
         .order('joined_at');
       if (error) throw error;
-      return (data ?? []) as Member[];
+      return (data ?? []) as unknown as Member[];
     }
   });
 

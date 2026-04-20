@@ -22,12 +22,18 @@ export function useWorkspaces(userId: string | undefined) {
         .select('role, workspace:workspaces(id, nome, owner_id, created_at)')
         .eq('user_id', userId!);
       if (error) throw error;
-      return (data ?? [])
-        .filter((r) => r.workspace !== null)
-        .map((r) => ({
-          ...(r.workspace as NonNullable<typeof r.workspace>),
-          role: r.role
-        }));
+      type Row = {
+        role: 'owner' | 'editor' | 'viewer';
+        workspace: {
+          id: string;
+          nome: string;
+          owner_id: string;
+          created_at: string;
+        } | null;
+      };
+      return ((data ?? []) as unknown as Row[])
+        .filter((r): r is Row & { workspace: NonNullable<Row['workspace']> } => r.workspace !== null)
+        .map((r) => ({ ...r.workspace, role: r.role }));
     }
   });
 }

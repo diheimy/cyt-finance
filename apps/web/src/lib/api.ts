@@ -2,7 +2,9 @@ import { supabase } from './supabase';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 
-async function authorizedFetch(path: string, init: RequestInit = {}): Promise<Response> {
+type FetchInit = Parameters<typeof fetch>[1];
+
+async function authorizedFetch(path: string, init: FetchInit = {}): Promise<Response> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new Error('not_authenticated');

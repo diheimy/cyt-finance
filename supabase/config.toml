@@ -2,14 +2,14 @@ project_id = "cyt-finance"
 
 [api]
 enabled = true
-port = 54321
+port = 54341
 schemas = ["public", "storage", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
-port = 54322
-shadow_port = 54320
+port = 54342
+shadow_port = 54340
 major_version = 15
 
 [db.pooler]
@@ -17,11 +17,12 @@ enabled = false
 
 [studio]
 enabled = true
-port = 54323
+port = 54343
+api_url = "http://localhost:54341"
 
 [inbucket]
 enabled = true
-port = 54324
+port = 54344
 
 [storage]
 enabled = true

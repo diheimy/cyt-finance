@@ -75,7 +75,9 @@ export function usePayInstallment(workspaceId: string | undefined) {
       if (debt.parcelas_pagas >= debt.parcelas_total) throw new Error('no_more_installments');
       const novasPagas = debt.parcelas_pagas + 1;
       const quitada = novasPagas >= debt.parcelas_total ? new Date().toISOString() : null;
-      const patch: Record<string, unknown> = { parcelas_pagas: novasPagas };
+      const patch: { parcelas_pagas: number; quitada_em?: string | null } = {
+        parcelas_pagas: novasPagas
+      };
       if (quitada) patch.quitada_em = quitada;
       const { data, error } = await supabase
         .from('debts')

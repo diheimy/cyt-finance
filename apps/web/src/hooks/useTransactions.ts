@@ -68,7 +68,13 @@ export function useCreateTransaction(workspaceId: string | undefined) {
 export function useUpdateTransaction(workspaceId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, patch }: { id: string; patch: Partial<TransactionInput> }) => {
+    mutationFn: async ({
+      id,
+      patch
+    }: {
+      id: string;
+      patch: Partial<Omit<TransactionInput, 'workspace_id'>>;
+    }) => {
       const { data, error } = await supabase
         .from('transactions')
         .update(patch)
