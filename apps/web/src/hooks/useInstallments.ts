@@ -24,8 +24,8 @@ export function useCreateInstallments() {
         p_valor_total: parsed.valor_total,
         p_parcelas: parsed.parcelas,
         p_descricao: parsed.descricao,
-        p_categoria_id: parsed.categoria_id,
-        p_data_compra: parsed.data_compra
+        p_data_compra: parsed.data_compra,
+        ...(parsed.categoria_id ? { p_categoria_id: parsed.categoria_id } : {})
       });
       if (error) throw error;
       return data as string;
