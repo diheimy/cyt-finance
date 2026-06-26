@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Any
 
 from src.schemas.health_report import HealthReport
@@ -41,13 +42,15 @@ def get_cached(client: Any, workspace_id: str, mes: str) -> HealthReport | None:
 
 
 def _fetch_month_txs(client: Any, workspace_id: str, mes: str) -> list[dict[str, Any]]:
-    start, end = f"{mes}-01", f"{mes}-31"
+    y, m = (int(p) for p in mes.split("-"))
+    start = f"{mes}-01"
+    next_month = date(y + m // 12, m % 12 + 1, 1).isoformat()  # 1º dia do mês seguinte
     res = (
         client.table("transactions")
         .select("tipo, valor, data")
         .eq("workspace_id", workspace_id)
         .gte("data", start)
-        .lte("data", end)
+        .lt("data", next_month)
         .execute()
     )
     return res.data or []
