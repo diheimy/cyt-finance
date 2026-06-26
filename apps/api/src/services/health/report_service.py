@@ -18,7 +18,7 @@ def generate_report(client: Any, workspace_id: str, mes: str) -> HealthReport:
         f"comprometimento com dívida {signals['comprometimento']:.2f} "
         f"patrimônio {signals['patrimonio']:.0f}"
     )
-    rules = retrieve_rules(client, query)
+    rules = retrieve_rules(query)
     report = analyze(signals, rules)
     client.table("health_reports").upsert(
         {"workspace_id": workspace_id, "mes": mes, "payload": report.model_dump()},

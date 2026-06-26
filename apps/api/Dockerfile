@@ -16,8 +16,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
+# torch CPU-only numa camada própria (evita baixar ~5GB de CUDA à toa no servidor sem GPU)
+RUN pip install --upgrade pip && pip install --index-url https://download.pytorch.org/whl/cpu torch
+
 COPY pyproject.toml ./
-RUN pip install --upgrade pip && pip install -e .
+RUN pip install -e .
 
 COPY src ./src
 

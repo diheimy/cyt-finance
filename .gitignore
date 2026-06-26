@@ -42,6 +42,10 @@ supabase/.branches/
 .claude/scheduled_tasks.lock
 .claude/tasks/
 
+# RAG (LlamaIndex) — livros-fonte e índice persistido (grandes/binários)
+Storage/
+apps/api/var/
+
 # Logs
 *.log
 npm-debug.log*

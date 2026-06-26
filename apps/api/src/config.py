@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     health_model: str = "anthropic/claude-sonnet-4.6"
     embed_model: str = "intfloat/multilingual-e5-small"
+    # RAG via LlamaIndex sobre os livros em Storage/
+    storage_dir: str = "/app/Storage"
+    health_index_dir: str = "/app/var/health_index"
 
     @property
     def cors_origins(self) -> list[str]:
