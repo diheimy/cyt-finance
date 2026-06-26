@@ -6,12 +6,14 @@ import { useDashboard } from '@/hooks/useDashboard';
 import { useNetWorth } from '@/hooks/useNetWorth';
 import { useUpcomingBills } from '@/hooks/useUpcomingBills';
 import { useCardUsage } from '@/hooks/useCardUsage';
+import { useHealthReport, useAnalyzeHealth } from '@/hooks/useHealthReport';
 import MonthlyBars from '@/components/charts/MonthlyBars';
 import LeakageDonut from '@/components/charts/LeakageDonut';
 import PreviousMonths from '@/components/charts/PreviousMonths';
 import ExportPdfButton from '@/components/ExportPdfButton';
 import { Card, CardTitle } from '@/components/ui/card';
 import { NetWorthCard } from '@/components/dashboard/NetWorthCard';
+import { HealthCard } from '@/components/dashboard/HealthCard';
 import { UpcomingBills } from '@/components/dashboard/UpcomingBills';
 import { CardUsage } from '@/components/dashboard/CardUsage';
 import { HealthMetrics } from '@/components/dashboard/HealthMetrics';
@@ -28,6 +30,8 @@ export default function Home() {
   const netWorth = useNetWorth(active?.id);
   const bills = useUpcomingBills(active?.id);
   const cardUsage = useCardUsage(active?.id, month);
+  const healthReport = useHealthReport(active?.id, month);
+  const analyze = useAnalyzeHealth(active?.id, month);
 
   // Espera auth terminar ANTES de decidir redirect. Sem esse gate, user
   // recém-criado cai em loop: user ainda undefined → useWorkspaces disabled
@@ -100,6 +104,12 @@ export default function Home() {
         <UpcomingBills items={bills.items} total={bills.total} />
         <CardUsage rows={cardUsage.rows} />
       </div>
+
+      <HealthCard
+        report={healthReport.data ?? null}
+        loading={analyze.isPending}
+        onAnalyze={() => analyze.mutate()}
+      />
 
       {dash.isLoading && <p className="text-sm text-muted">Carregando gráficos…</p>}
       {dash.isError && (

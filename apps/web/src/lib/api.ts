@@ -30,6 +30,30 @@ export interface PdfReportPayload {
   incluir_auditoria?: boolean;
 }
 
+export interface HealthReport {
+  score: number;
+  nivel: 'saudavel' | 'atencao' | 'critico';
+  positivos: string[];
+  atencao: string[];
+  recomendacoes: string[];
+}
+
+export async function fetchHealthReport(
+  workspaceId: string,
+  mes: string
+): Promise<HealthReport | null> {
+  const res = await authorizedFetch(`/health-analysis/${workspaceId}?mes=${mes}`);
+  return (await res.json()) as HealthReport | null;
+}
+
+export async function analyzeHealth(workspaceId: string, mes: string): Promise<HealthReport> {
+  const res = await authorizedFetch(`/health-analysis/${workspaceId}`, {
+    method: 'POST',
+    body: JSON.stringify({ workspace_id: workspaceId, mes })
+  });
+  return (await res.json()) as HealthReport;
+}
+
 export async function downloadPdfReport(payload: PdfReportPayload): Promise<void> {
   const res = await authorizedFetch('/reports/pdf', {
     method: 'POST',
