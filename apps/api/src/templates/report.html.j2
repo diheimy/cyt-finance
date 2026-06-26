@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Relatório CYT Finance</title>
+  <title>Relatório Dom Finance</title>
   <style>
     @page { size: A4; margin: 22mm 18mm; }
     * { box-sizing: border-box; }
@@ -42,7 +42,7 @@
 <body>
 
   <header>
-    <h1>CYT Finance</h1>
+    <h1>Dom Finance</h1>
     <p class="muted">
       Relatório de <strong>{{ workspace.nome }}</strong> · período
       {{ periodo_inicio | date_br }} a {{ periodo_fim | date_br }}
@@ -192,7 +192,7 @@
   {% endif %}
 
   <footer>
-    Gerado por CYT Finance · {{ periodo_fim | date_br }}
+    Gerado por Dom Finance · {{ periodo_fim | date_br }}
   </footer>
 
 </body>

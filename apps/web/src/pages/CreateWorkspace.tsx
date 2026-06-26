@@ -21,21 +21,21 @@ export default function CreateWorkspace() {
       await create.mutateAsync({ nome: nome.trim(), ownerId: user.id });
       navigate('/', { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'erro_criar_workspace');
+      setError(err instanceof Error ? err.message : (err as { message?: string })?.message ?? JSON.stringify(err));
     }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+    <main className="min-h-screen flex items-center justify-center bg-bg p-4">
+      <div className="w-full max-w-md bg-surface rounded-2xl shadow-sm border border-border p-8">
         <h1 className="font-display text-2xl mb-1">Crie seu primeiro workspace</h1>
-        <p className="text-slate-500 text-sm mb-6">
+        <p className="text-muted text-sm mb-6">
           Dê um nome para o espaço onde você e sua família gerenciarão as finanças.
         </p>
 
         <form onSubmit={submit} className="space-y-3">
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">Nome do workspace</span>
+            <span className="text-sm font-medium text-text">Nome do workspace</span>
             <input
               type="text"
               required
@@ -43,7 +43,7 @@ export default function CreateWorkspace() {
               placeholder="Ex: Família Silva"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-900"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </label>
 
@@ -52,7 +52,7 @@ export default function CreateWorkspace() {
           <button
             type="submit"
             disabled={create.isPending || !nome.trim()}
-            className="w-full bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
+            className="w-full bg-accent text-white rounded-lg py-2 font-semibold disabled:opacity-50"
           >
             {create.isPending ? 'Criando…' : 'Criar workspace'}
           </button>

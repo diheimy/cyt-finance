@@ -1,0 +1,268 @@
+name: dom-financeiro
+
+services:
+
+  # ── Banco de dados (PostgreSQL 15 + extensões Supabase) ──────
+  db:
+    image: supabase/postgres:15.1.1.78
+    restart: unless-stopped
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Autenticação (GoTrue) ─────────────────────────────────────
+  auth:
+    image: supabase/gotrue:v2.151.0
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: ${API_EXTERNAL_URL}
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@db:5432/postgres
+      GOTRUE_SITE_URL: ${SITE_URL}
+      GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
+      GOTRUE_DISABLE_SIGNUP: "false"
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_SMTP_HOST: inbucket
+      GOTRUE_SMTP_PORT: 2500
+      GOTRUE_SMTP_SENDER_NAME: Dom Financeiro
+      GOTRUE_SMTP_ADMIN_EMAIL: noreply@domfinanceiro.local
+      GOTRUE_MAILER_URLPATHS_INVITE: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_RECOVERY: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: /auth/v1/verify
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_EXTERNAL_PHONE_ENABLED: "false"
+      GOTRUE_SECURITY_REFRESH_TOKEN_ROTATION_ENABLED: "true"
+      GOTRUE_SECURITY_REFRESH_TOKEN_REUSE_INTERVAL: 10
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9999/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── API REST (PostgREST) ──────────────────────────────────────
+  rest:
+    image: postgrest/postgrest:v12.2.0
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@db:5432/postgres
+      PGRST_DB_SCHEMAS: public,storage,graphql_public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+      PGRST_APP_SETTINGS_JWT_SECRET: ${JWT_SECRET}
+      PGRST_APP_SETTINGS_JWT_EXP: 3600
+
+  # ── Realtime ──────────────────────────────────────────────────
+  realtime:
+    image: supabase/realtime:v2.28.32
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 4000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: supabase_admin
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: postgres
+      DB_AFTER_CONNECT_QUERY: "SET search_path TO _realtime"
+      DB_ENC_KEY: supabaserealtime
+      API_JWT_SECRET: ${JWT_SECRET}
+      FLY_ALLOC_ID: fly123
+      FLY_APP_NAME: realtime
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      ERL_AFLAGS: -proto_dist inet_tcp
+      ENABLE_TAILSCALE: "false"
+      DNS_NODES: '""'
+    command: >
+      sh -c "/app/bin/migrate &&
+             /app/bin/realtime eval 'Realtime.Release.seeds(Realtime.Repo)' &&
+             /app/bin/server"
+
+  # ── Storage ───────────────────────────────────────────────────
+  storage:
+    image: supabase/storage-api:v1.0.6
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      rest:
+        condition: service_started
+    volumes:
+      - storage_data:/var/lib/storage
+    environment:
+      ANON_KEY: ${ANON_KEY}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@db:5432/postgres
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: local
+      GLOBAL_S3_BUCKET: stub
+      ENABLE_IMAGE_TRANSFORMATION: "true"
+      IMGPROXY_URL: http://imgproxy:5001
+
+  imgproxy:
+    image: darthsim/imgproxy:v3.8.0
+    restart: unless-stopped
+    volumes:
+      - storage_data:/var/lib/storage:ro
+    environment:
+      IMGPROXY_BIND: ":5001"
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_ENABLE_WEBP_DETECTION: "true"
+
+  # ── Postgres Meta (usado pelo Studio) ─────────────────────────
+  meta:
+    image: supabase/postgres-meta:v0.83.2
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: db
+      PG_META_DB_PORT: 5432
+      PG_META_DB_NAME: postgres
+      PG_META_DB_USER: supabase_admin
+      PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
+
+  # ── Studio (dashboard visual) ─────────────────────────────────
+  studio:
+    image: supabase/studio:20240422-5cf8f30
+    restart: unless-stopped
+    ports:
+      - "8400:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DEFAULT_ORGANIZATION_NAME: Dom Financeiro
+      DEFAULT_PROJECT_NAME: cyt-finance
+      SUPABASE_URL: http://kong:8000
+      SUPABASE_PUBLIC_URL: ${API_EXTERNAL_URL}
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      AUTH_JWT_SECRET: ${JWT_SECRET}
+      NEXT_PUBLIC_ENABLE_LOGS: "false"
+      NEXT_ANALYTICS_BACKEND_PROVIDER: postgres
+
+  # ── Kong (API Gateway) ────────────────────────────────────────
+  kong:
+    image: kong:2.8.1
+    restart: unless-stopped
+    ports:
+      - "192.168.1.16:8300:8000"
+    volumes:
+      - ./volumes/kong/kong.yml:/home/kong/kong.yml:ro
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
+      KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
+      KONG_NGINX_PROXY_PROXY_BUFFERS: "64 160k"
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      DASHBOARD_USERNAME: ${DASHBOARD_USERNAME:-supabase}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
+    depends_on:
+      auth:
+        condition: service_started
+      rest:
+        condition: service_started
+
+  # ── Inbucket (email local — captura sem enviar) ───────────────
+  inbucket:
+    image: inbucket/inbucket:stable
+    restart: unless-stopped
+    ports:
+      - "9001:9000"   # UI: http://192.168.1.16:9001
+      - "2500:2500"   # SMTP (usado pelo GoTrue)
+      - "1100:1100"   # POP3
+
+  # ── Migrator (roda migrations após GoTrue criar o schema auth) ─
+  migrator:
+    image: postgres:15-alpine
+    restart: "no"
+    depends_on:
+      auth:
+        condition: service_healthy
+    volumes:
+      - ./supabase/migrations:/migrations:ro
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    command: >
+      sh -c "
+        echo 'Aguardando schema auth...';
+        until psql -h db -U postgres postgres -c 'SELECT 1 FROM auth.users LIMIT 1' > /dev/null 2>&1; do sleep 2; done;
+        echo 'Schema auth pronto. Aplicando migrations...';
+        for f in \$$(ls /migrations/*.sql | sort); do
+          echo \">> \$$f\";
+          psql -h db -U postgres postgres -f \$$f;
+        done;
+        echo 'Migrations concluidas.'
+      "
+
+  # ── API Python ────────────────────────────────────────────────
+  api:
+    build: ./apps/api
+    restart: unless-stopped
+    ports:
+      - "8020:8000"
+    env_file: .env
+    volumes:
+      - ./apps/api/var:/app/var   # índice RAG (LlamaIndex) persistido, construído offline
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ── Web (React/Vite) ──────────────────────────────────────────
+  # VITE_* são baked in no build — se mudar URL, reconstrua a imagem:
+  #   docker compose build web && docker compose up -d web
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${API_EXTERNAL_URL}
+        VITE_SUPABASE_ANON_KEY: ${ANON_KEY}
+        VITE_API_URL: ${VITE_API_URL:-http://192.168.1.16:8020}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - kong
+
+volumes:
+  pg_data:
+  storage_data:

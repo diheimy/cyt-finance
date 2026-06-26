@@ -38,7 +38,7 @@ interface Props {
 export default function MonthlyBars({ data }: Props) {
   if (data.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-slate-500 text-sm">
+      <div className="h-64 flex items-center justify-center text-muted text-sm">
         Sem dados suficientes.
       </div>
     );

@@ -1,3 +1,19 @@
+:root {
+  --bg: #0b0f17;
+  --surface: #141a24;
+  --surface-2: #1b2330;
+  --border: #26303f;
+  --text: #e6eaf0;
+  --muted: #8a94a6;
+  --accent: #6366f1;
+  --accent-grad: linear-gradient(135deg, #6366f1 0%, #22d3ee 100%);
+  --positive: #34d399;
+  --negative: #f87171;
+  --warn: #fbbf24;
+}
+html { color-scheme: dark; }
+body { background: var(--bg); color: var(--text); }
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

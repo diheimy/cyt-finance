@@ -110,6 +110,29 @@ export function useUndoInstallment(workspaceId: string | undefined) {
   });
 }
 
+export function useUpdateDebt(workspaceId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      patch
+    }: {
+      id: string;
+      patch: Partial<Omit<DebtInput, 'workspace_id'>>;
+    }) => {
+      const { data, error } = await supabase
+        .from('debts')
+        .update(patch)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['debts', workspaceId] })
+  });
+}
+
 export function useDeleteDebt(workspaceId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({

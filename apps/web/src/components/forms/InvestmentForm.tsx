@@ -1,25 +1,33 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCategories } from '@/hooks/useCategories';
-import { InvestmentInputSchema, useCreateInvestment } from '@/hooks/useInvestments';
+import {
+  InvestmentInputSchema,
+  useCreateInvestment,
+  useUpdateInvestment,
+  type InvestmentRow
+} from '@/hooks/useInvestments';
 import { parseMoneyInput, todayISO } from '@/utils/format';
 
 interface Props {
   workspaceId: string;
+  existing?: InvestmentRow;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export default function InvestmentForm({ workspaceId, onSuccess, onCancel }: Props) {
+export default function InvestmentForm({ workspaceId, existing, onSuccess, onCancel }: Props) {
   const { user } = useAuth();
   const cats = useCategories(workspaceId, 'investimento');
   const create = useCreateInvestment(workspaceId);
+  const update = useUpdateInvestment(workspaceId);
 
-  const [valor, setValor] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [categoria, setCategoria] = useState('');
-  const [data, setData] = useState(todayISO());
+  const [valor, setValor] = useState(existing ? String(existing.valor).replace('.', ',') : '');
+  const [descricao, setDescricao] = useState(existing?.descricao ?? '');
+  const [categoria, setCategoria] = useState(existing?.categoria ?? '');
+  const [data, setData] = useState(existing?.data ?? todayISO());
   const [error, setError] = useState<string | null>(null);
+  const pending = create.isPending || update.isPending;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,7 +42,19 @@ export default function InvestmentForm({ workspaceId, onSuccess, onCancel }: Pro
         categoria: (categoria || 'Outros').trim(),
         data
       });
-      await create.mutateAsync({ ...input, created_by: user.id });
+      if (existing) {
+        await update.mutateAsync({
+          id: existing.id,
+          patch: {
+            valor: input.valor,
+            descricao: input.descricao,
+            categoria: input.categoria,
+            data: input.data
+          }
+        });
+      } else {
+        await create.mutateAsync({ ...input, created_by: user.id });
+      }
       onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'erro_criar');
@@ -44,7 +64,7 @@ export default function InvestmentForm({ workspaceId, onSuccess, onCancel }: Pro
   return (
     <form onSubmit={submit} className="space-y-3">
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Valor (R$)</span>
+        <span className="text-sm font-medium text-text">Valor (R$)</span>
         <input
           type="text"
           inputMode="decimal"
@@ -52,12 +72,12 @@ export default function InvestmentForm({ workspaceId, onSuccess, onCancel }: Pro
           placeholder="0,00"
           value={valor}
           onChange={(e) => setValor(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Descrição</span>
+        <span className="text-sm font-medium text-text">Descrição</span>
         <input
           type="text"
           required
@@ -65,12 +85,12 @@ export default function InvestmentForm({ workspaceId, onSuccess, onCancel }: Pro
           placeholder="Ex: Aporte Tesouro Selic"
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Categoria</span>
+        <span className="text-sm font-medium text-text">Categoria</span>
         <input
           type="text"
           list="invest-cats"
@@ -79,26 +99,26 @@ export default function InvestmentForm({ workspaceId, onSuccess, onCancel }: Pro
           placeholder="Renda Fixa"
           value={categoria}
           onChange={(e) => setCategoria(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
         <datalist id="invest-cats">
           {(cats.data ?? []).map((c) => (
             <option key={c.id} value={c.nome} />
           ))}
         </datalist>
-        <span className="text-xs text-slate-500 mt-1 block">
+        <span className="text-xs text-muted mt-1 block">
           Pode escolher uma categoria existente ou digitar uma nova.
         </span>
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Data</span>
+        <span className="text-sm font-medium text-text">Data</span>
         <input
           type="date"
           required
           value={data}
           onChange={(e) => setData(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
@@ -109,17 +129,17 @@ export default function InvestmentForm({ workspaceId, onSuccess, onCancel }: Pro
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-slate-300 py-2 font-semibold text-slate-700"
+            className="flex-1 rounded-lg border border-border py-2 font-semibold text-text"
           >
             Cancelar
           </button>
         )}
         <button
           type="submit"
-          disabled={create.isPending}
-          className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
+          disabled={pending}
+          className="flex-1 bg-accent text-white rounded-lg py-2 font-semibold disabled:opacity-50"
         >
-          {create.isPending ? 'Salvando…' : 'Salvar aporte'}
+          {pending ? 'Salvando…' : existing ? 'Atualizar' : 'Salvar aporte'}
         </button>
       </div>
     </form>

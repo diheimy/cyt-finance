@@ -9,7 +9,7 @@ interface Props {
 export default function LeakageDonut({ data }: Props) {
   if (data.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-slate-500 text-sm">
+      <div className="h-64 flex items-center justify-center text-muted text-sm">
         Sem gastos neste período.
       </div>
     );
@@ -47,7 +47,7 @@ export default function LeakageDonut({ data }: Props) {
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-xs text-slate-500">Total</span>
+          <span className="text-xs text-muted">Total</span>
           <span className="font-semibold text-lg">{formatMoney(total)}</span>
         </div>
       </div>
@@ -61,7 +61,7 @@ export default function LeakageDonut({ data }: Props) {
             />
             <span className="flex-1 truncate">{s.categoriaNome}</span>
             <span className="font-medium">{formatMoney(s.valor)}</span>
-            <span className="text-slate-400 text-xs w-12 text-right">{s.percent}%</span>
+            <span className="text-muted text-xs w-12 text-right">{s.percent}%</span>
           </li>
         ))}
       </ul>

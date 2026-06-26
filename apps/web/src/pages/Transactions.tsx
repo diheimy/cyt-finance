@@ -5,7 +5,8 @@ import { useCategories } from '@/hooks/useCategories';
 import { useCards } from '@/hooks/useCards';
 import { useDeleteTransaction, useTransactions } from '@/hooks/useTransactions';
 import { Modal } from '@/components/Modal';
-import TransactionForm from '@/components/forms/TransactionForm';
+import { RowActions } from '@/components/RowActions';
+import TransactionForm, { type TransactionEditValues } from '@/components/forms/TransactionForm';
 import InstallmentForm from '@/components/forms/InstallmentForm';
 import { currentMonthKey, formatDateBR, formatMoney } from '@/utils/format';
 import type { TransactionFilters, TransactionKind } from '@/types/schemas';
@@ -23,6 +24,7 @@ export default function Transactions() {
   const [cartaoId, setCartaoId] = useState('');
   const [search, setSearch] = useState('');
   const [formOpen, setFormOpen] = useState<FormKind>(null);
+  const [editing, setEditing] = useState<TransactionEditValues | null>(null);
 
   const cats = useCategories(active?.id);
   const cards = useCards(active?.id);
@@ -60,19 +62,19 @@ export default function Transactions() {
       <header className="flex items-start justify-between gap-2 flex-wrap">
         <div>
           <h1 className="font-display text-2xl">Transações</h1>
-          <p className="text-slate-500 text-sm">{active.nome}</p>
+          <p className="text-muted text-sm">{active.nome}</p>
         </div>
         {canEdit && (
           <div className="flex gap-2">
             <button
               onClick={() => setFormOpen('tx')}
-              className="bg-slate-900 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+              className="bg-accent text-white rounded-lg px-4 py-2 text-sm font-semibold"
             >
               + Nova
             </button>
             <button
               onClick={() => setFormOpen('installment')}
-              className="border border-slate-300 text-slate-700 rounded-lg px-4 py-2 text-sm font-semibold"
+              className="border border-border text-text rounded-lg px-4 py-2 text-sm font-semibold"
             >
               + Parcelado
             </button>
@@ -95,12 +97,12 @@ export default function Transactions() {
           type="month"
           value={month}
           onChange={(e) => setMonth(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="rounded-lg border border-border px-3 py-2 text-sm"
         />
         <select
           value={tipo}
           onChange={(e) => setTipo(e.target.value as TransactionKind | '')}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
+          className="rounded-lg border border-border px-3 py-2 text-sm bg-surface"
         >
           <option value="">Todos os tipos</option>
           <option value="gasto">Gastos</option>
@@ -109,7 +111,7 @@ export default function Transactions() {
         <select
           value={categoriaId}
           onChange={(e) => setCategoriaId(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
+          className="rounded-lg border border-border px-3 py-2 text-sm bg-surface"
         >
           <option value="">Todas as categorias</option>
           {(cats.data ?? []).map((c) => (
@@ -121,7 +123,7 @@ export default function Transactions() {
         <select
           value={cartaoId}
           onChange={(e) => setCartaoId(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
+          className="rounded-lg border border-border px-3 py-2 text-sm bg-surface"
         >
           <option value="">Todos os cartões</option>
           {(cards.data ?? []).map((c) => (
@@ -135,18 +137,18 @@ export default function Transactions() {
           placeholder="Buscar descrição…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm col-span-2 md:col-span-1"
+          className="rounded-lg border border-border px-3 py-2 text-sm col-span-2 md:col-span-1"
         />
       </div>
 
-      {list.isLoading && <p className="text-slate-500 text-sm">Carregando…</p>}
+      {list.isLoading && <p className="text-muted text-sm">Carregando…</p>}
       {list.isError && (
         <p className="text-red-600 text-sm">Erro ao carregar: {(list.error as Error).message}</p>
       )}
 
-      <ul className="divide-y divide-slate-200 bg-white rounded-lg border border-slate-200">
+      <ul className="divide-y divide-border bg-surface rounded-lg border border-border">
         {(list.data ?? []).length === 0 && !list.isLoading && (
-          <li className="p-6 text-center text-slate-500 text-sm">
+          <li className="p-6 text-center text-muted text-sm">
             Nenhuma transação neste período.
           </li>
         )}
@@ -154,7 +156,7 @@ export default function Transactions() {
           <li key={t.id} className="flex items-center justify-between gap-2 p-3">
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">{t.descricao}</p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted">
                 {formatDateBR(t.data)}
                 {t.categoria ? ` · ${t.categoria.nome}` : ''}
                 {t.cartao ? ` · ${t.cartao.nome} •••• ${t.cartao.ultimos_digitos}` : ''}
@@ -172,18 +174,24 @@ export default function Transactions() {
               {t.tipo === 'entrada' ? '+' : '-'} {formatMoney(Number(t.valor))}
             </span>
             {canEdit && (
-              <button
-                onClick={() => {
-                  const msg = t.compra_id
+              <RowActions
+                onEdit={() =>
+                  setEditing({
+                    id: t.id,
+                    tipo: t.tipo,
+                    valor: Number(t.valor),
+                    descricao: t.descricao,
+                    data: t.data,
+                    categoria_id: t.categoria_id
+                  })
+                }
+                onDelete={() => del.mutate(t.id)}
+                confirmText={
+                  t.compra_id
                     ? 'Excluir APENAS esta parcela? As outras parcelas permanecem.'
-                    : 'Excluir esta transação?';
-                  if (confirm(msg)) del.mutate(t.id);
-                }}
-                className="text-slate-400 hover:text-red-600 px-2"
-                aria-label="Excluir"
-              >
-                ✕
-              </button>
+                    : 'Excluir esta transação?'
+                }
+              />
             )}
           </li>
         ))}
@@ -212,6 +220,18 @@ export default function Transactions() {
           onCancel={() => setFormOpen(null)}
         />
       </Modal>
+
+      <Modal open={!!editing} onClose={() => setEditing(null)} title="Editar transação">
+        {editing && (
+          <TransactionForm
+            workspaceId={active.id}
+            mode="edit"
+            initialValues={editing}
+            onSuccess={() => setEditing(null)}
+            onCancel={() => setEditing(null)}
+          />
+        )}
+      </Modal>
     </section>
   );
 }
@@ -231,8 +251,8 @@ function StatCard({
     blue: 'text-blue-600'
   } as const;
   return (
-    <div className="bg-white rounded-lg border border-slate-200 p-3">
-      <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
+    <div className="bg-surface rounded-lg border border-border p-3">
+      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
       <p className={`font-semibold text-lg ${accentMap[accent]}`}>{value}</p>
     </div>
   );

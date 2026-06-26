@@ -12,7 +12,17 @@ export default {
           blue: '#3b82f6',
           yellow: '#f59e0b',
           purple: '#8b5cf6'
-        }
+        },
+        bg: 'var(--bg)',
+        surface: 'var(--surface)',
+        'surface-2': 'var(--surface-2)',
+        border: 'var(--border)',
+        text: 'var(--text)',
+        muted: 'var(--muted)',
+        accent: 'var(--accent)',
+        positive: 'var(--positive)',
+        negative: 'var(--negative)',
+        warn: 'var(--warn)'
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

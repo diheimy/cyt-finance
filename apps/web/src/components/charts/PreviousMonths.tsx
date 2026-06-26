@@ -31,10 +31,10 @@ export default function PreviousMonths({ rows, onSelect }: Props) {
   if (reversed.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200 overflow-x-auto">
+    <div className="bg-surface rounded-lg border border-border overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="text-xs uppercase text-slate-500 border-b border-slate-200">
+          <tr className="text-xs uppercase text-muted border-b border-border">
             <th className="text-left p-3 font-semibold">Mês/Ano</th>
             <th className="text-right p-3 font-semibold">Entradas</th>
             <th className="text-right p-3 font-semibold">Saídas</th>
@@ -47,8 +47,8 @@ export default function PreviousMonths({ rows, onSelect }: Props) {
             <tr
               key={r.month}
               onClick={() => onSelect?.(r.month)}
-              className={`border-b border-slate-100 last:border-b-0 ${
-                onSelect ? 'cursor-pointer hover:bg-slate-50' : ''
+              className={`border-b border-border last:border-b-0 ${
+                onSelect ? 'cursor-pointer hover:bg-bg' : ''
               }`}
             >
               <td className="p-3 font-medium capitalize">{label(r.month)}</td>
@@ -63,7 +63,7 @@ export default function PreviousMonths({ rows, onSelect }: Props) {
               </td>
               <td
                 className={`p-3 text-right ${
-                  r.caixaAcumulado >= 0 ? 'text-slate-900' : 'text-red-600'
+                  r.caixaAcumulado >= 0 ? 'text-text' : 'text-red-600'
                 }`}
               >
                 {formatMoney(r.caixaAcumulado)}

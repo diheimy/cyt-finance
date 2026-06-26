@@ -113,17 +113,17 @@ export default function Members() {
     <main className="p-6 max-w-3xl mx-auto space-y-8">
       <header>
         <h1 className="font-display text-2xl">Membros — {active.nome}</h1>
-        <p className="text-slate-500 text-sm">Gerencie quem tem acesso a este workspace.</p>
+        <p className="text-muted text-sm">Gerencie quem tem acesso a este workspace.</p>
       </header>
 
       <section>
         <h2 className="font-semibold mb-2">Membros atuais</h2>
-        <ul className="divide-y divide-slate-200 bg-white rounded-lg border border-slate-200">
+        <ul className="divide-y divide-border bg-surface rounded-lg border border-border">
           {(members.data ?? []).map((m) => (
             <li key={m.user_id} className="flex items-center justify-between p-3">
               <div>
                 <p className="font-medium">{m.profile?.nome ?? m.user_id}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted">
                   {m.role} · entrou em {new Date(m.joined_at).toLocaleDateString('pt-BR')}
                 </p>
               </div>
@@ -151,12 +151,12 @@ export default function Members() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@exemplo.com"
-                className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
+                className="flex-1 rounded-lg border border-border px-3 py-2"
               />
               <button
                 type="submit"
                 disabled={createInvite.isPending}
-                className="bg-slate-900 text-white rounded-lg px-4 py-2 font-semibold disabled:opacity-50"
+                className="bg-accent text-white rounded-lg px-4 py-2 font-semibold disabled:opacity-50"
               >
                 Convidar
               </button>
@@ -167,14 +167,14 @@ export default function Members() {
           <section>
             <h2 className="font-semibold mb-2">Convites pendentes</h2>
             {(invites.data ?? []).length === 0 ? (
-              <p className="text-sm text-slate-500">Nenhum convite pendente.</p>
+              <p className="text-sm text-muted">Nenhum convite pendente.</p>
             ) : (
-              <ul className="divide-y divide-slate-200 bg-white rounded-lg border border-slate-200">
+              <ul className="divide-y divide-border bg-surface rounded-lg border border-border">
                 {(invites.data ?? []).map((i) => (
                   <li key={i.id} className="flex items-center justify-between p-3">
                     <div>
                       <p className="font-medium">{i.email}</p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted">
                         expira em {new Date(i.expires_at).toLocaleDateString('pt-BR')}
                       </p>
                     </div>

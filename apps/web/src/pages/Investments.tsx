@@ -1,8 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useActiveWorkspace, useWorkspaces } from '@/hooks/useWorkspace';
-import { useDeleteInvestment, useInvestments } from '@/hooks/useInvestments';
+import {
+  useDeleteInvestment,
+  useInvestments,
+  type InvestmentRow
+} from '@/hooks/useInvestments';
 import { Modal } from '@/components/Modal';
+import { RowActions } from '@/components/RowActions';
 import InvestmentForm from '@/components/forms/InvestmentForm';
 import { formatDateBR, formatMoney } from '@/utils/format';
 
@@ -13,6 +18,7 @@ export default function Investments() {
   const list = useInvestments(active?.id);
   const del = useDeleteInvestment(active?.id);
   const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<InvestmentRow | null>(null);
 
   const { total, porCategoria } = useMemo(() => {
     const rows = list.data ?? [];
@@ -31,28 +37,28 @@ export default function Investments() {
       <header className="flex items-start justify-between gap-2 flex-wrap">
         <div>
           <h1 className="font-display text-2xl">Investimentos</h1>
-          <p className="text-slate-500 text-sm">
+          <p className="text-muted text-sm">
             Registre seus aportes para acompanhar o patrimônio.
           </p>
         </div>
         {canEdit && (
           <button
             onClick={() => setFormOpen(true)}
-            className="bg-slate-900 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+            className="bg-accent text-white rounded-lg px-4 py-2 text-sm font-semibold"
           >
             + Novo aporte
           </button>
         )}
       </header>
 
-      <div className="bg-white rounded-lg border border-slate-200 p-4">
-        <p className="text-xs uppercase tracking-wide text-slate-500">Total aportado</p>
+      <div className="bg-surface rounded-lg border border-border p-4">
+        <p className="text-xs uppercase tracking-wide text-muted">Total aportado</p>
         <p className="font-semibold text-3xl mt-1 text-blue-600">{formatMoney(total)}</p>
         {porCategoria.length > 0 && (
           <ul className="mt-4 space-y-1">
             {porCategoria.map(([cat, soma]) => (
               <li key={cat} className="flex items-center justify-between text-sm">
-                <span className="text-slate-600">{cat}</span>
+                <span className="text-muted">{cat}</span>
                 <span className="font-medium">{formatMoney(soma)}</span>
               </li>
             ))}
@@ -60,34 +66,30 @@ export default function Investments() {
         )}
       </div>
 
-      {list.isLoading && <p className="text-slate-500 text-sm">Carregando…</p>}
+      {list.isLoading && <p className="text-muted text-sm">Carregando…</p>}
 
       {(list.data ?? []).length === 0 && !list.isLoading && (
-        <div className="bg-white rounded-lg border border-slate-200 p-6 text-center text-slate-500 text-sm">
+        <div className="bg-surface rounded-lg border border-border p-6 text-center text-muted text-sm">
           Nenhum investimento registrado.
         </div>
       )}
 
-      <ul className="divide-y divide-slate-200 bg-white rounded-lg border border-slate-200">
+      <ul className="divide-y divide-border bg-surface rounded-lg border border-border">
         {(list.data ?? []).map((inv) => (
           <li key={inv.id} className="flex items-center justify-between gap-2 p-3">
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">{inv.descricao}</p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted">
                 {formatDateBR(inv.data)} · {inv.categoria}
               </p>
             </div>
             <span className="font-semibold text-blue-600">{formatMoney(Number(inv.valor))}</span>
             {canEdit && (
-              <button
-                onClick={() => {
-                  if (confirm('Excluir este aporte?')) del.mutate(inv.id);
-                }}
-                className="text-slate-400 hover:text-red-600 px-2"
-                aria-label="Excluir"
-              >
-                ✕
-              </button>
+              <RowActions
+                onEdit={() => setEditing(inv)}
+                onDelete={() => del.mutate(inv.id)}
+                confirmText="Excluir este aporte?"
+              />
             )}
           </li>
         ))}
@@ -99,6 +101,17 @@ export default function Investments() {
           onSuccess={() => setFormOpen(false)}
           onCancel={() => setFormOpen(false)}
         />
+      </Modal>
+
+      <Modal open={!!editing} onClose={() => setEditing(null)} title="Editar aporte">
+        {editing && (
+          <InvestmentForm
+            workspaceId={active.id}
+            existing={editing}
+            onSuccess={() => setEditing(null)}
+            onCancel={() => setEditing(null)}
+          />
+        )}
       </Modal>
     </section>
   );

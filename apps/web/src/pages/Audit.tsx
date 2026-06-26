@@ -45,7 +45,7 @@ export default function Audit() {
     <section className="p-6 space-y-6">
       <header>
         <h1 className="font-display text-2xl">🛡️ Auditoria</h1>
-        <p className="text-slate-500 text-sm">
+        <p className="text-muted text-sm">
           Histórico completo de ações no workspace. Toda criação, edição e exclusão é registrada.
         </p>
       </header>
@@ -54,7 +54,7 @@ export default function Audit() {
         <select
           value={entidade}
           onChange={(e) => setEntidade(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
+          className="rounded-lg border border-border px-3 py-2 text-sm bg-surface"
         >
           <option value="">Todas as entidades</option>
           {AUDIT_ENTIDADES.map((e) => (
@@ -66,7 +66,7 @@ export default function Audit() {
         <select
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
+          className="rounded-lg border border-border px-3 py-2 text-sm bg-surface"
         >
           <option value={7}>Últimos 7 dias</option>
           <option value={30}>Últimos 30 dias</option>
@@ -75,7 +75,7 @@ export default function Audit() {
         </select>
       </div>
 
-      {logs.isLoading && <p className="text-slate-500 text-sm">Carregando…</p>}
+      {logs.isLoading && <p className="text-muted text-sm">Carregando…</p>}
       {logs.isError && (
         <p className="text-red-600 text-sm">
           Erro ao carregar: {(logs.error as Error).message}
@@ -83,12 +83,12 @@ export default function Audit() {
       )}
 
       {(logs.data ?? []).length === 0 && !logs.isLoading && (
-        <div className="bg-white rounded-lg border border-slate-200 p-6 text-center text-slate-500 text-sm">
+        <div className="bg-surface rounded-lg border border-border p-6 text-center text-muted text-sm">
           Nenhuma ação registrada no período.
         </div>
       )}
 
-      <ul className="divide-y divide-slate-200 bg-white rounded-lg border border-slate-200">
+      <ul className="divide-y divide-border bg-surface rounded-lg border border-border">
         {(logs.data ?? []).map((log) => {
           const acao = ACAO_LABEL[log.acao] ?? log.acao;
           const entLabel = ENTIDADE_LABEL[log.entidade] ?? log.entidade;
@@ -99,8 +99,8 @@ export default function Audit() {
                 <span className="font-medium">
                   {log.user?.nome ?? 'sistema'} {acao} {entLabel}
                 </span>
-                {resumo && <span className="text-slate-500 truncate">— {resumo}</span>}
-                <span className="ml-auto text-xs text-slate-400 shrink-0">
+                {resumo && <span className="text-muted truncate">— {resumo}</span>}
+                <span className="ml-auto text-xs text-muted shrink-0">
                   {new Date(log.created_at).toLocaleString('pt-BR')}
                 </span>
               </div>
