@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Dialog } from '@/components/ui/dialog';
 
 interface Props {
   open: boolean;
@@ -8,19 +9,15 @@ interface Props {
 }
 
 export function Modal({ open, onClose, title, children }: Props) {
-  if (!open) return null;
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 p-0 md:p-4"
-      onClick={onClose}
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) onClose();
+      }}
+      title={title}
     >
-      <div
-        className="bg-white w-full md:max-w-md rounded-t-2xl md:rounded-2xl p-6 max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {title && <h2 className="font-display text-xl mb-4">{title}</h2>}
-        {children}
-      </div>
-    </div>
+      {children}
+    </Dialog>
   );
 }
