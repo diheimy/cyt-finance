@@ -1,25 +1,33 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCategories } from '@/hooks/useCategories';
-import { InvestmentInputSchema, useCreateInvestment } from '@/hooks/useInvestments';
+import {
+  InvestmentInputSchema,
+  useCreateInvestment,
+  useUpdateInvestment,
+  type InvestmentRow
+} from '@/hooks/useInvestments';
 import { parseMoneyInput, todayISO } from '@/utils/format';
 
 interface Props {
   workspaceId: string;
+  existing?: InvestmentRow;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export default function InvestmentForm({ workspaceId, onSuccess, onCancel }: Props) {
+export default function InvestmentForm({ workspaceId, existing, onSuccess, onCancel }: Props) {
   const { user } = useAuth();
   const cats = useCategories(workspaceId, 'investimento');
   const create = useCreateInvestment(workspaceId);
+  const update = useUpdateInvestment(workspaceId);
 
-  const [valor, setValor] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [categoria, setCategoria] = useState('');
-  const [data, setData] = useState(todayISO());
+  const [valor, setValor] = useState(existing ? String(existing.valor).replace('.', ',') : '');
+  const [descricao, setDescricao] = useState(existing?.descricao ?? '');
+  const [categoria, setCategoria] = useState(existing?.categoria ?? '');
+  const [data, setData] = useState(existing?.data ?? todayISO());
   const [error, setError] = useState<string | null>(null);
+  const pending = create.isPending || update.isPending;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,7 +42,19 @@ export default function InvestmentForm({ workspaceId, onSuccess, onCancel }: Pro
         categoria: (categoria || 'Outros').trim(),
         data
       });
-      await create.mutateAsync({ ...input, created_by: user.id });
+      if (existing) {
+        await update.mutateAsync({
+          id: existing.id,
+          patch: {
+            valor: input.valor,
+            descricao: input.descricao,
+            categoria: input.categoria,
+            data: input.data
+          }
+        });
+      } else {
+        await create.mutateAsync({ ...input, created_by: user.id });
+      }
       onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'erro_criar');
@@ -116,10 +136,10 @@ export default function InvestmentForm({ workspaceId, onSuccess, onCancel }: Pro
         )}
         <button
           type="submit"
-          disabled={create.isPending}
+          disabled={pending}
           className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
         >
-          {create.isPending ? 'Salvando…' : 'Salvar aporte'}
+          {pending ? 'Salvando…' : existing ? 'Atualizar' : 'Salvar aporte'}
         </button>
       </div>
     </form>

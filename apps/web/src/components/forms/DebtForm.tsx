@@ -1,25 +1,36 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { DebtInputSchema, useCreateDebt, type DebtKind } from '@/hooks/useDebts';
+import {
+  DebtInputSchema,
+  useCreateDebt,
+  useUpdateDebt,
+  type DebtKind,
+  type DebtRow
+} from '@/hooks/useDebts';
 import { parseMoneyInput, todayISO } from '@/utils/format';
 
 interface Props {
   workspaceId: string;
+  existing?: DebtRow;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export default function DebtForm({ workspaceId, onSuccess, onCancel }: Props) {
+export default function DebtForm({ workspaceId, existing, onSuccess, onCancel }: Props) {
   const { user } = useAuth();
   const create = useCreateDebt(workspaceId);
+  const update = useUpdateDebt(workspaceId);
 
-  const [tipo, setTipo] = useState<DebtKind>('pagar');
-  const [pessoa, setPessoa] = useState('');
-  const [valorTotal, setValorTotal] = useState('');
-  const [parcelas, setParcelas] = useState(1);
-  const [descricao, setDescricao] = useState('');
-  const [dataInicio, setDataInicio] = useState(todayISO());
+  const [tipo, setTipo] = useState<DebtKind>(existing?.tipo ?? 'pagar');
+  const [pessoa, setPessoa] = useState(existing?.pessoa ?? '');
+  const [valorTotal, setValorTotal] = useState(
+    existing ? String(existing.valor_total).replace('.', ',') : ''
+  );
+  const [parcelas, setParcelas] = useState(existing?.parcelas_total ?? 1);
+  const [descricao, setDescricao] = useState(existing?.descricao ?? '');
+  const [dataInicio, setDataInicio] = useState(existing?.data_inicio ?? todayISO());
   const [error, setError] = useState<string | null>(null);
+  const pending = create.isPending || update.isPending;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -36,7 +47,21 @@ export default function DebtForm({ workspaceId, onSuccess, onCancel }: Props) {
         descricao: descricao.trim() || null,
         data_inicio: dataInicio
       });
-      await create.mutateAsync({ ...input, created_by: user.id });
+      if (existing) {
+        await update.mutateAsync({
+          id: existing.id,
+          patch: {
+            tipo: input.tipo,
+            pessoa: input.pessoa,
+            valor_total: input.valor_total,
+            parcelas_total: input.parcelas_total,
+            descricao: input.descricao,
+            data_inicio: input.data_inicio
+          }
+        });
+      } else {
+        await create.mutateAsync({ ...input, created_by: user.id });
+      }
       onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'erro_criar');
@@ -141,10 +166,10 @@ export default function DebtForm({ workspaceId, onSuccess, onCancel }: Props) {
         )}
         <button
           type="submit"
-          disabled={create.isPending}
+          disabled={pending}
           className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
         >
-          {create.isPending ? 'Salvando…' : 'Criar dívida'}
+          {pending ? 'Salvando…' : existing ? 'Atualizar' : 'Criar dívida'}
         </button>
       </div>
     </form>

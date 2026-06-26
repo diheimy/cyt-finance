@@ -1,28 +1,37 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCategories } from '@/hooks/useCategories';
-import { RecurringInputSchema, useCreateRecurring } from '@/hooks/useRecurring';
+import {
+  RecurringInputSchema,
+  useCreateRecurring,
+  useUpdateRecurring,
+  type RecurringRow
+} from '@/hooks/useRecurring';
 import { parseMoneyInput, todayISO } from '@/utils/format';
 import type { TransactionKind } from '@/types/schemas';
 
 interface Props {
   workspaceId: string;
+  existing?: RecurringRow;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export default function RecurringForm({ workspaceId, onSuccess, onCancel }: Props) {
+export default function RecurringForm({ workspaceId, existing, onSuccess, onCancel }: Props) {
   const { user } = useAuth();
-  const [tipo, setTipo] = useState<TransactionKind>('gasto');
-  const [valor, setValor] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [dataInicio, setDataInicio] = useState(todayISO());
-  const [categoriaId, setCategoriaId] = useState('');
-  const [limite, setLimite] = useState('0');
+  const isEdit = !!existing;
+  const [tipo, setTipo] = useState<TransactionKind>(existing?.tipo ?? 'gasto');
+  const [valor, setValor] = useState(existing ? String(existing.valor).replace('.', ',') : '');
+  const [descricao, setDescricao] = useState(existing?.descricao ?? '');
+  const [dataInicio, setDataInicio] = useState(existing?.data_inicio ?? todayISO());
+  const [categoriaId, setCategoriaId] = useState(existing?.categoria_id ?? '');
+  const [limite, setLimite] = useState(existing ? String(existing.limite_parcelas) : '0');
   const [error, setError] = useState<string | null>(null);
 
   const cats = useCategories(workspaceId, tipo);
   const create = useCreateRecurring(workspaceId);
+  const update = useUpdateRecurring(workspaceId);
+  const pending = create.isPending || update.isPending;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,7 +49,18 @@ export default function RecurringForm({ workspaceId, onSuccess, onCancel }: Prop
         data_inicio: dataInicio,
         limite_parcelas: limiteNum
       });
-      await create.mutateAsync({ ...input, created_by: user.id });
+      if (existing) {
+        await update.mutateAsync({
+          id: existing.id,
+          patch: {
+            valor: input.valor,
+            descricao: input.descricao,
+            limite_parcelas: input.limite_parcelas
+          }
+        });
+      } else {
+        await create.mutateAsync({ ...input, created_by: user.id });
+      }
       onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'erro_criar');
@@ -52,8 +72,9 @@ export default function RecurringForm({ workspaceId, onSuccess, onCancel }: Prop
       <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
+          disabled={isEdit}
           onClick={() => setTipo('gasto')}
-          className={`rounded-lg py-2 font-semibold text-sm ${
+          className={`rounded-lg py-2 font-semibold text-sm disabled:opacity-50 ${
             tipo === 'gasto' ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-600'
           }`}
         >
@@ -61,8 +82,9 @@ export default function RecurringForm({ workspaceId, onSuccess, onCancel }: Prop
         </button>
         <button
           type="button"
+          disabled={isEdit}
           onClick={() => setTipo('entrada')}
-          className={`rounded-lg py-2 font-semibold text-sm ${
+          className={`rounded-lg py-2 font-semibold text-sm disabled:opacity-50 ${
             tipo === 'entrada' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600'
           }`}
         >
@@ -101,9 +123,10 @@ export default function RecurringForm({ workspaceId, onSuccess, onCancel }: Prop
         <input
           type="date"
           required
+          disabled={isEdit}
           value={dataInicio}
           onChange={(e) => setDataInicio(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 disabled:opacity-50"
         />
       </label>
 
@@ -111,8 +134,9 @@ export default function RecurringForm({ workspaceId, onSuccess, onCancel }: Prop
         <span className="text-sm font-medium text-slate-700">Categoria</span>
         <select
           value={categoriaId}
+          disabled={isEdit}
           onChange={(e) => setCategoriaId(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 bg-white"
+          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 bg-white disabled:opacity-50"
         >
           <option value="">— sem categoria —</option>
           {(cats.data ?? []).map((c) => (
@@ -153,10 +177,10 @@ export default function RecurringForm({ workspaceId, onSuccess, onCancel }: Prop
         )}
         <button
           type="submit"
-          disabled={create.isPending}
+          disabled={pending}
           className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
         >
-          {create.isPending ? 'Salvando…' : 'Criar regra'}
+          {pending ? 'Salvando…' : isEdit ? 'Atualizar' : 'Criar regra'}
         </button>
       </div>
     </form>
