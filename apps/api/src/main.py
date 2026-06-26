@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
-from src.routers import health, recurring, reports
+from src.routers import health, health_report, recurring, reports
 
 app = FastAPI(
     title="Dom Finance API",
@@ -19,5 +19,6 @@ app.add_middleware(
 )
 
 app.include_router(health.router)
+app.include_router(health_report.router)
 app.include_router(recurring.router)
 app.include_router(reports.router)
