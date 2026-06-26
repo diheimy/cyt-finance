@@ -28,16 +28,39 @@ RULES: list[dict[str, object]] = [
 ]
 
 
-def main() -> None:
+def _emit_sql() -> None:
+    """Emite SQL idempotente para inserir as regras (com embeddings) direto no Postgres.
+
+    Útil quando o PostgREST/JWT não está disponível:
+        python scripts/seed_health_kb.py --sql | docker exec -i <db> psql ...
+    """
+    print("truncate table public.health_kb;")
+    for r in RULES:
+        vec = embed(str(r["conteudo"]))
+        vec_lit = "[" + ",".join(f"{x:.6f}" for x in vec) + "]"
+        tags_lit = "{" + ",".join(str(t) for t in r["tags"]) + "}"  # type: ignore[union-attr]
+        print(
+            "insert into public.health_kb (conteudo, tags, embedding) values "
+            f"($${r['conteudo']}$$, '{tags_lit}', '{vec_lit}');"
+        )
+
+
+def _seed_via_client() -> None:
     client = get_service_client()
     rows = [
         {"conteudo": r["conteudo"], "tags": r["tags"], "embedding": embed(str(r["conteudo"]))}
         for r in RULES
     ]
-    # Limpa e re-seed (idempotente).
     client.table("health_kb").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
     client.table("health_kb").insert(rows).execute()
     print(f"{len(rows)} regras inseridas na health_kb")
+
+
+def main() -> None:
+    if "--sql" in sys.argv:
+        _emit_sql()
+    else:
+        _seed_via_client()
 
 
 if __name__ == "__main__":
