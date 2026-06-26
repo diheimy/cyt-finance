@@ -50,7 +50,7 @@ export default function CardForm({ workspaceId, existing, onSuccess, onCancel }:
   return (
     <form onSubmit={submit} className="space-y-3">
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Nome do cartão</span>
+        <span className="text-sm font-medium text-text">Nome do cartão</span>
         <input
           type="text"
           required
@@ -58,12 +58,12 @@ export default function CardForm({ workspaceId, existing, onSuccess, onCancel }:
           maxLength={80}
           value={nome}
           onChange={(e) => setNome(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Últimos 4 dígitos</span>
+        <span className="text-sm font-medium text-text">Últimos 4 dígitos</span>
         <input
           type="text"
           required
@@ -73,12 +73,12 @@ export default function CardForm({ workspaceId, existing, onSuccess, onCancel }:
           placeholder="1234"
           value={digitos}
           onChange={(e) => setDigitos(e.target.value.replace(/\D/g, '').slice(0, 4))}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-mono tracking-widest"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2 font-mono tracking-widest"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Dia de fechamento</span>
+        <span className="text-sm font-medium text-text">Dia de fechamento</span>
         <input
           type="number"
           required
@@ -86,9 +86,9 @@ export default function CardForm({ workspaceId, existing, onSuccess, onCancel }:
           max={31}
           value={diaFechamento}
           onChange={(e) => setDiaFechamento(Number(e.target.value))}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
-        <span className="text-xs text-slate-500 mt-1 block">
+        <span className="text-xs text-muted mt-1 block">
           Gastos após esta data caem na fatura do mês seguinte.
         </span>
       </label>
@@ -100,7 +100,7 @@ export default function CardForm({ workspaceId, existing, onSuccess, onCancel }:
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-slate-300 py-2 font-semibold text-slate-700"
+            className="flex-1 rounded-lg border border-border py-2 font-semibold text-text"
           >
             Cancelar
           </button>
@@ -108,7 +108,7 @@ export default function CardForm({ workspaceId, existing, onSuccess, onCancel }:
         <button
           type="submit"
           disabled={pending}
-          className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
+          className="flex-1 bg-accent text-white rounded-lg py-2 font-semibold disabled:opacity-50"
         >
           {pending ? 'Salvando…' : existing ? 'Atualizar' : 'Criar cartão'}
         </button>

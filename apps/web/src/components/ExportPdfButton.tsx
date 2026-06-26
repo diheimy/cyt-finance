@@ -41,8 +41,8 @@ export default function ExportPdfButton({
 
   const btnClass =
     variant === 'primary'
-      ? 'bg-slate-900 text-white'
-      : 'border border-slate-300 text-slate-700';
+      ? 'bg-accent text-white'
+      : 'border border-border text-text';
 
   return (
     <>
@@ -56,12 +56,12 @@ export default function ExportPdfButton({
       <Modal open={open} onClose={() => setOpen(false)} title="Exportar relatório PDF">
         <div className="space-y-3">
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">Período (mês)</span>
+            <span className="text-sm font-medium text-text">Período (mês)</span>
             <input
               type="month"
               value={month}
               onChange={(e) => setMonth(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2"
             />
           </label>
 
@@ -80,14 +80,14 @@ export default function ExportPdfButton({
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="flex-1 rounded-lg border border-slate-300 py-2 font-semibold text-slate-700"
+              className="flex-1 rounded-lg border border-border py-2 font-semibold text-text"
             >
               Cancelar
             </button>
             <button
               onClick={submit}
               disabled={loading}
-              className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
+              className="flex-1 bg-accent text-white rounded-lg py-2 font-semibold disabled:opacity-50"
             >
               {loading ? 'Gerando PDF…' : 'Baixar PDF'}
             </button>

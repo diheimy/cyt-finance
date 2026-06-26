@@ -43,12 +43,12 @@ export default function Debts() {
       <header className="flex items-start justify-between gap-2 flex-wrap">
         <div>
           <h1 className="font-display text-2xl">Dívidas</h1>
-          <p className="text-slate-500 text-sm">Controle dívidas a pagar e a receber, parceladas.</p>
+          <p className="text-muted text-sm">Controle dívidas a pagar e a receber, parceladas.</p>
         </div>
         {canEdit && (
           <button
             onClick={() => setFormOpen(true)}
-            className="bg-slate-900 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+            className="bg-accent text-white rounded-lg px-4 py-2 text-sm font-semibold"
           >
             + Nova dívida
           </button>
@@ -65,15 +65,15 @@ export default function Debts() {
         />
       </div>
 
-      {list.isLoading && <p className="text-slate-500 text-sm">Carregando…</p>}
+      {list.isLoading && <p className="text-muted text-sm">Carregando…</p>}
 
       {(list.data ?? []).length === 0 && !list.isLoading && (
-        <div className="bg-white rounded-lg border border-slate-200 p-6 text-center text-slate-500 text-sm">
+        <div className="bg-surface rounded-lg border border-border p-6 text-center text-muted text-sm">
           Nenhuma dívida registrada.
         </div>
       )}
 
-      <ul className="divide-y divide-slate-200 bg-white rounded-lg border border-slate-200">
+      <ul className="divide-y divide-border bg-surface rounded-lg border border-border">
         {(list.data ?? []).map((d) => {
           const valorParc = Number(d.valor_total) / d.parcelas_total;
           const pago = Number(d.valor_total) * (d.parcelas_pagas / d.parcelas_total);
@@ -95,15 +95,15 @@ export default function Debts() {
                     </span>
                     <p className="font-medium truncate">{d.pessoa}</p>
                     {d.quitada_em && (
-                      <span className="text-xs bg-slate-200 text-slate-600 rounded-full px-2 py-0.5">
+                      <span className="text-xs bg-surface-2 text-muted rounded-full px-2 py-0.5">
                         ✓ quitada
                       </span>
                     )}
                   </div>
                   {d.descricao && (
-                    <p className="text-xs text-slate-500 truncate">{d.descricao}</p>
+                    <p className="text-xs text-muted truncate">{d.descricao}</p>
                   )}
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-muted mt-1">
                     início {formatDateBR(d.data_inicio)} · {d.parcelas_pagas}/{d.parcelas_total}{' '}
                     pagas · parcela {formatMoney(valorParc)}
                   </p>
@@ -111,14 +111,14 @@ export default function Debts() {
                 <div className="text-right">
                   <p className="font-semibold">{formatMoney(Number(d.valor_total))}</p>
                   {!d.quitada_em && (
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-muted">
                       {formatMoney(restante)} restante
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="mt-2 h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+              <div className="mt-2 h-1.5 w-full bg-surface-2 rounded-full overflow-hidden">
                 <div
                   className={`h-full ${
                     d.tipo === 'receber' ? 'bg-emerald-500' : 'bg-red-500'
@@ -132,7 +132,7 @@ export default function Debts() {
                   {!d.quitada_em && d.parcelas_pagas < d.parcelas_total && (
                     <button
                       onClick={() => pay.mutate(d)}
-                      className="text-slate-900 font-semibold hover:underline"
+                      className="text-text font-semibold hover:underline"
                     >
                       Registrar parcela paga
                     </button>
@@ -140,14 +140,14 @@ export default function Debts() {
                   {d.parcelas_pagas > 0 && (
                     <button
                       onClick={() => undo.mutate(d)}
-                      className="text-slate-500 hover:text-slate-900"
+                      className="text-muted hover:text-text"
                     >
                       Desfazer última
                     </button>
                   )}
                   <button
                     onClick={() => setEditing(d)}
-                    className="text-slate-600 hover:text-slate-900 ml-auto"
+                    className="text-muted hover:text-text ml-auto"
                   >
                     Editar
                   </button>
@@ -190,8 +190,8 @@ export default function Debts() {
 
 function Stat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className="bg-white rounded-lg border border-slate-200 p-3">
-      <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
+    <div className="bg-surface rounded-lg border border-border p-3">
+      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
       <p className={`font-semibold text-lg ${color}`}>{value}</p>
     </div>
   );

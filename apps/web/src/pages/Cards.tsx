@@ -38,22 +38,22 @@ export default function Cards() {
       <header className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h1 className="font-display text-2xl">Cartões</h1>
-          <p className="text-slate-500 text-sm">Cadastre seus cartões para lançar compras parceladas.</p>
+          <p className="text-muted text-sm">Cadastre seus cartões para lançar compras parceladas.</p>
         </div>
         {canEdit && (
           <button
             onClick={openNew}
-            className="bg-slate-900 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+            className="bg-accent text-white rounded-lg px-4 py-2 text-sm font-semibold"
           >
             + Novo cartão
           </button>
         )}
       </header>
 
-      {cards.isLoading && <p className="text-slate-500 text-sm">Carregando…</p>}
+      {cards.isLoading && <p className="text-muted text-sm">Carregando…</p>}
 
       {(cards.data ?? []).length === 0 && !cards.isLoading && (
-        <div className="bg-white rounded-lg border border-slate-200 p-6 text-center text-slate-500 text-sm">
+        <div className="bg-surface rounded-lg border border-border p-6 text-center text-muted text-sm">
           Nenhum cartão cadastrado ainda.
         </div>
       )}
@@ -62,12 +62,12 @@ export default function Cards() {
         {(cards.data ?? []).map((c) => (
           <li
             key={c.id}
-            className="bg-white rounded-lg border border-slate-200 p-4 flex items-center justify-between"
+            className="bg-surface rounded-lg border border-border p-4 flex items-center justify-between"
           >
             <div>
               <p className="font-semibold">{c.nome}</p>
-              <p className="text-xs text-slate-500 font-mono">•••• {c.ultimos_digitos}</p>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-muted font-mono">•••• {c.ultimos_digitos}</p>
+              <p className="text-xs text-muted mt-1">
                 Fechamento dia <strong>{c.dia_fechamento}</strong>
               </p>
             </div>
@@ -75,7 +75,7 @@ export default function Cards() {
               <div className="flex gap-2">
                 <button
                   onClick={() => openEdit(c)}
-                  className="text-sm text-slate-600 hover:text-slate-900"
+                  className="text-sm text-muted hover:text-text"
                 >
                   Editar
                 </button>

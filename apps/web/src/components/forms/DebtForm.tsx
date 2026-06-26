@@ -75,7 +75,7 @@ export default function DebtForm({ workspaceId, existing, onSuccess, onCancel }:
           type="button"
           onClick={() => setTipo('pagar')}
           className={`rounded-lg py-2 font-semibold text-sm ${
-            tipo === 'pagar' ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-600'
+            tipo === 'pagar' ? 'bg-red-500 text-white' : 'bg-surface-2 text-muted'
           }`}
         >
           A pagar
@@ -84,7 +84,7 @@ export default function DebtForm({ workspaceId, existing, onSuccess, onCancel }:
           type="button"
           onClick={() => setTipo('receber')}
           className={`rounded-lg py-2 font-semibold text-sm ${
-            tipo === 'receber' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600'
+            tipo === 'receber' ? 'bg-emerald-500 text-white' : 'bg-surface-2 text-muted'
           }`}
         >
           A receber
@@ -92,7 +92,7 @@ export default function DebtForm({ workspaceId, existing, onSuccess, onCancel }:
       </div>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Pessoa / credor</span>
+        <span className="text-sm font-medium text-text">Pessoa / credor</span>
         <input
           type="text"
           required
@@ -100,12 +100,12 @@ export default function DebtForm({ workspaceId, existing, onSuccess, onCancel }:
           placeholder="Ex: João, Banco X, Mãe"
           value={pessoa}
           onChange={(e) => setPessoa(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Valor total (R$)</span>
+        <span className="text-sm font-medium text-text">Valor total (R$)</span>
         <input
           type="text"
           inputMode="decimal"
@@ -113,12 +113,12 @@ export default function DebtForm({ workspaceId, existing, onSuccess, onCancel }:
           placeholder="0,00"
           value={valorTotal}
           onChange={(e) => setValorTotal(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Parcelas</span>
+        <span className="text-sm font-medium text-text">Parcelas</span>
         <input
           type="number"
           required
@@ -126,29 +126,29 @@ export default function DebtForm({ workspaceId, existing, onSuccess, onCancel }:
           max={600}
           value={parcelas}
           onChange={(e) => setParcelas(Number(e.target.value))}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Descrição (opcional)</span>
+        <span className="text-sm font-medium text-text">Descrição (opcional)</span>
         <input
           type="text"
           maxLength={200}
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Data de início</span>
+        <span className="text-sm font-medium text-text">Data de início</span>
         <input
           type="date"
           required
           value={dataInicio}
           onChange={(e) => setDataInicio(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
@@ -159,7 +159,7 @@ export default function DebtForm({ workspaceId, existing, onSuccess, onCancel }:
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-slate-300 py-2 font-semibold text-slate-700"
+            className="flex-1 rounded-lg border border-border py-2 font-semibold text-text"
           >
             Cancelar
           </button>
@@ -167,7 +167,7 @@ export default function DebtForm({ workspaceId, existing, onSuccess, onCancel }:
         <button
           type="submit"
           disabled={pending}
-          className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
+          className="flex-1 bg-accent text-white rounded-lg py-2 font-semibold disabled:opacity-50"
         >
           {pending ? 'Salvando…' : existing ? 'Atualizar' : 'Criar dívida'}
         </button>

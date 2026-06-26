@@ -54,16 +54,16 @@ export default function InstallmentForm({ workspaceId, onSuccess, onCancel }: Pr
     }
   }
 
-  if (cards.isLoading) return <p className="text-sm text-slate-500">Carregando cartões…</p>;
+  if (cards.isLoading) return <p className="text-sm text-muted">Carregando cartões…</p>;
 
   if ((cards.data ?? []).length === 0) {
     return (
-      <div className="text-sm text-slate-600 space-y-2">
+      <div className="text-sm text-muted space-y-2">
         <p>Você precisa cadastrar um cartão antes de lançar compras parceladas.</p>
         <button
           type="button"
           onClick={onCancel}
-          className="text-slate-900 font-medium underline"
+          className="text-text font-medium underline"
         >
           Fechar
         </button>
@@ -74,12 +74,12 @@ export default function InstallmentForm({ workspaceId, onSuccess, onCancel }: Pr
   return (
     <form onSubmit={submit} className="space-y-3">
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Cartão</span>
+        <span className="text-sm font-medium text-text">Cartão</span>
         <select
           required
           value={cartaoId}
           onChange={(e) => setCartaoId(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 bg-white"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2 bg-surface"
         >
           <option value="">— selecione —</option>
           {(cards.data ?? []).map((c) => (
@@ -91,7 +91,7 @@ export default function InstallmentForm({ workspaceId, onSuccess, onCancel }: Pr
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Valor total (R$)</span>
+        <span className="text-sm font-medium text-text">Valor total (R$)</span>
         <input
           type="text"
           inputMode="decimal"
@@ -99,16 +99,16 @@ export default function InstallmentForm({ workspaceId, onSuccess, onCancel }: Pr
           placeholder="0,00"
           value={valorTotal}
           onChange={(e) => setValorTotal(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Parcelas</span>
+        <span className="text-sm font-medium text-text">Parcelas</span>
         <select
           value={parcelas}
           onChange={(e) => setParcelas(Number(e.target.value))}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 bg-white"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2 bg-surface"
         >
           {Array.from({ length: 59 }, (_, i) => i + 2).map((n) => (
             <option key={n} value={n}>
@@ -117,44 +117,44 @@ export default function InstallmentForm({ workspaceId, onSuccess, onCancel }: Pr
           ))}
         </select>
         {valorParcela > 0 && (
-          <span className="text-xs text-slate-500 mt-1 block">
+          <span className="text-xs text-muted mt-1 block">
             {parcelas}x de {formatMoney(valorParcela)} (última ajustada para bater o total)
           </span>
         )}
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Descrição</span>
+        <span className="text-sm font-medium text-text">Descrição</span>
         <input
           type="text"
           required
           maxLength={200}
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Data da compra</span>
+        <span className="text-sm font-medium text-text">Data da compra</span>
         <input
           type="date"
           required
           value={dataCompra}
           onChange={(e) => setDataCompra(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
-        <span className="text-xs text-slate-500 mt-1 block">
+        <span className="text-xs text-muted mt-1 block">
           A 1ª parcela cai na próxima fatura após o fechamento.
         </span>
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Categoria</span>
+        <span className="text-sm font-medium text-text">Categoria</span>
         <select
           value={categoriaId}
           onChange={(e) => setCategoriaId(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 bg-white"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2 bg-surface"
         >
           <option value="">— sem categoria —</option>
           {(cats.data ?? []).map((c) => (
@@ -172,7 +172,7 @@ export default function InstallmentForm({ workspaceId, onSuccess, onCancel }: Pr
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-slate-300 py-2 font-semibold text-slate-700"
+            className="flex-1 rounded-lg border border-border py-2 font-semibold text-text"
           >
             Cancelar
           </button>
@@ -180,7 +180,7 @@ export default function InstallmentForm({ workspaceId, onSuccess, onCancel }: Pr
         <button
           type="submit"
           disabled={create.isPending}
-          className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
+          className="flex-1 bg-accent text-white rounded-lg py-2 font-semibold disabled:opacity-50"
         >
           {create.isPending ? 'Criando parcelas…' : `Lançar ${parcelas}x`}
         </button>

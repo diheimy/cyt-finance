@@ -31,7 +31,7 @@ export default function AcceptInvite() {
     return (
       <CenterCard>
         <h1 className="font-display text-2xl mb-2">Link inválido</h1>
-        <p className="text-slate-600">O convite não contém um token válido.</p>
+        <p className="text-muted">O convite não contém um token válido.</p>
       </CenterCard>
     );
   }
@@ -42,13 +42,13 @@ export default function AcceptInvite() {
     return (
       <CenterCard>
         <h1 className="font-display text-2xl mb-2">Você foi convidado!</h1>
-        <p className="text-slate-600 mb-4">
+        <p className="text-muted mb-4">
           Para aceitar este convite, faça login ou crie uma conta. Voltaremos aqui automaticamente.
         </p>
         <Link
           to="/login"
           state={{ from: `/accept-invite?token=${encodeURIComponent(token)}` }}
-          className="inline-block bg-slate-900 text-white rounded-lg px-4 py-2 font-semibold"
+          className="inline-block bg-accent text-white rounded-lg px-4 py-2 font-semibold"
         >
           Entrar / Criar conta
         </Link>
@@ -63,7 +63,7 @@ export default function AcceptInvite() {
     return (
       <CenterCard>
         <h1 className="font-display text-2xl mb-2">Convite inválido</h1>
-        <p className="text-slate-600">{error}</p>
+        <p className="text-muted">{error}</p>
       </CenterCard>
     );
 
@@ -72,8 +72,8 @@ export default function AcceptInvite() {
 
 function CenterCard({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+    <main className="min-h-screen flex items-center justify-center bg-bg p-4">
+      <div className="w-full max-w-md bg-surface rounded-2xl shadow-sm border border-border p-8 text-center">
         {children}
       </div>
     </main>

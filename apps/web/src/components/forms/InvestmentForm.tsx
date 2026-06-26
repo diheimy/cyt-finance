@@ -64,7 +64,7 @@ export default function InvestmentForm({ workspaceId, existing, onSuccess, onCan
   return (
     <form onSubmit={submit} className="space-y-3">
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Valor (R$)</span>
+        <span className="text-sm font-medium text-text">Valor (R$)</span>
         <input
           type="text"
           inputMode="decimal"
@@ -72,12 +72,12 @@ export default function InvestmentForm({ workspaceId, existing, onSuccess, onCan
           placeholder="0,00"
           value={valor}
           onChange={(e) => setValor(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Descrição</span>
+        <span className="text-sm font-medium text-text">Descrição</span>
         <input
           type="text"
           required
@@ -85,12 +85,12 @@ export default function InvestmentForm({ workspaceId, existing, onSuccess, onCan
           placeholder="Ex: Aporte Tesouro Selic"
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Categoria</span>
+        <span className="text-sm font-medium text-text">Categoria</span>
         <input
           type="text"
           list="invest-cats"
@@ -99,26 +99,26 @@ export default function InvestmentForm({ workspaceId, existing, onSuccess, onCan
           placeholder="Renda Fixa"
           value={categoria}
           onChange={(e) => setCategoria(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
         <datalist id="invest-cats">
           {(cats.data ?? []).map((c) => (
             <option key={c.id} value={c.nome} />
           ))}
         </datalist>
-        <span className="text-xs text-slate-500 mt-1 block">
+        <span className="text-xs text-muted mt-1 block">
           Pode escolher uma categoria existente ou digitar uma nova.
         </span>
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Data</span>
+        <span className="text-sm font-medium text-text">Data</span>
         <input
           type="date"
           required
           value={data}
           onChange={(e) => setData(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
@@ -129,7 +129,7 @@ export default function InvestmentForm({ workspaceId, existing, onSuccess, onCan
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-slate-300 py-2 font-semibold text-slate-700"
+            className="flex-1 rounded-lg border border-border py-2 font-semibold text-text"
           >
             Cancelar
           </button>
@@ -137,7 +137,7 @@ export default function InvestmentForm({ workspaceId, existing, onSuccess, onCan
         <button
           type="submit"
           disabled={pending}
-          className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
+          className="flex-1 bg-accent text-white rounded-lg py-2 font-semibold disabled:opacity-50"
         >
           {pending ? 'Salvando…' : existing ? 'Atualizar' : 'Salvar aporte'}
         </button>

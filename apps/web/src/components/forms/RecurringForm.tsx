@@ -75,7 +75,7 @@ export default function RecurringForm({ workspaceId, existing, onSuccess, onCanc
           disabled={isEdit}
           onClick={() => setTipo('gasto')}
           className={`rounded-lg py-2 font-semibold text-sm disabled:opacity-50 ${
-            tipo === 'gasto' ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-600'
+            tipo === 'gasto' ? 'bg-red-500 text-white' : 'bg-surface-2 text-muted'
           }`}
         >
           Gasto fixo
@@ -85,7 +85,7 @@ export default function RecurringForm({ workspaceId, existing, onSuccess, onCanc
           disabled={isEdit}
           onClick={() => setTipo('entrada')}
           className={`rounded-lg py-2 font-semibold text-sm disabled:opacity-50 ${
-            tipo === 'entrada' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600'
+            tipo === 'entrada' ? 'bg-emerald-500 text-white' : 'bg-surface-2 text-muted'
           }`}
         >
           Entrada fixa
@@ -93,7 +93,7 @@ export default function RecurringForm({ workspaceId, existing, onSuccess, onCanc
       </div>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Valor mensal (R$)</span>
+        <span className="text-sm font-medium text-text">Valor mensal (R$)</span>
         <input
           type="text"
           inputMode="decimal"
@@ -101,12 +101,12 @@ export default function RecurringForm({ workspaceId, existing, onSuccess, onCanc
           value={valor}
           onChange={(e) => setValor(e.target.value)}
           placeholder="0,00"
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Descrição</span>
+        <span className="text-sm font-medium text-text">Descrição</span>
         <input
           type="text"
           required
@@ -114,29 +114,29 @@ export default function RecurringForm({ workspaceId, existing, onSuccess, onCanc
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
           placeholder="Ex: Aluguel, Internet, Salário"
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Data de início</span>
+        <span className="text-sm font-medium text-text">Data de início</span>
         <input
           type="date"
           required
           disabled={isEdit}
           value={dataInicio}
           onChange={(e) => setDataInicio(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 disabled:opacity-50"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2 disabled:opacity-50"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Categoria</span>
+        <span className="text-sm font-medium text-text">Categoria</span>
         <select
           value={categoriaId}
           disabled={isEdit}
           onChange={(e) => setCategoriaId(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 bg-white disabled:opacity-50"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2 bg-surface disabled:opacity-50"
         >
           <option value="">— sem categoria —</option>
           {(cats.data ?? []).map((c) => (
@@ -148,7 +148,7 @@ export default function RecurringForm({ workspaceId, existing, onSuccess, onCanc
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Limite de parcelas (0 = infinito)</span>
+        <span className="text-sm font-medium text-text">Limite de parcelas (0 = infinito)</span>
         <input
           type="number"
           min={0}
@@ -156,9 +156,9 @@ export default function RecurringForm({ workspaceId, existing, onSuccess, onCanc
           required
           value={limite}
           onChange={(e) => setLimite(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
-        <span className="text-xs text-slate-500 mt-1 block">
+        <span className="text-xs text-muted mt-1 block">
           Ex: 12 para financiamento de 12 meses. Use 0 para cobranças sem fim (aluguel).
         </span>
       </label>
@@ -170,7 +170,7 @@ export default function RecurringForm({ workspaceId, existing, onSuccess, onCanc
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-slate-300 py-2 font-semibold text-slate-700"
+            className="flex-1 rounded-lg border border-border py-2 font-semibold text-text"
           >
             Cancelar
           </button>
@@ -178,7 +178,7 @@ export default function RecurringForm({ workspaceId, existing, onSuccess, onCanc
         <button
           type="submit"
           disabled={pending}
-          className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
+          className="flex-1 bg-accent text-white rounded-lg py-2 font-semibold disabled:opacity-50"
         >
           {pending ? 'Salvando…' : isEdit ? 'Atualizar' : 'Criar regra'}
         </button>

@@ -96,7 +96,7 @@ export default function TransactionForm({
           className={`rounded-lg py-2 font-semibold text-sm ${
             tipo === 'gasto'
               ? 'bg-red-500 text-white'
-              : 'bg-slate-100 text-slate-600'
+              : 'bg-surface-2 text-muted'
           }`}
         >
           Gasto
@@ -107,7 +107,7 @@ export default function TransactionForm({
           className={`rounded-lg py-2 font-semibold text-sm ${
             tipo === 'entrada'
               ? 'bg-emerald-500 text-white'
-              : 'bg-slate-100 text-slate-600'
+              : 'bg-surface-2 text-muted'
           }`}
         >
           Entrada
@@ -115,7 +115,7 @@ export default function TransactionForm({
       </div>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Valor (R$)</span>
+        <span className="text-sm font-medium text-text">Valor (R$)</span>
         <input
           type="text"
           inputMode="decimal"
@@ -123,39 +123,39 @@ export default function TransactionForm({
           placeholder="0,00"
           value={valor}
           onChange={(e) => setValor(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Descrição</span>
+        <span className="text-sm font-medium text-text">Descrição</span>
         <input
           type="text"
           required
           maxLength={200}
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Data</span>
+        <span className="text-sm font-medium text-text">Data</span>
         <input
           type="date"
           required
           value={data}
           onChange={(e) => setData(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2"
         />
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Categoria</span>
+        <span className="text-sm font-medium text-text">Categoria</span>
         <select
           value={categoriaId}
           onChange={(e) => setCategoriaId(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 bg-white"
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2 bg-surface"
         >
           <option value="">— sem categoria —</option>
           {categorias.map((c) => (
@@ -173,7 +173,7 @@ export default function TransactionForm({
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-slate-300 py-2 font-semibold text-slate-700"
+            className="flex-1 rounded-lg border border-border py-2 font-semibold text-text"
           >
             Cancelar
           </button>
@@ -181,7 +181,7 @@ export default function TransactionForm({
         <button
           type="submit"
           disabled={pending}
-          className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
+          className="flex-1 bg-accent text-white rounded-lg py-2 font-semibold disabled:opacity-50"
         >
           {pending ? 'Salvando…' : 'Salvar'}
         </button>
