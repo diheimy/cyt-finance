@@ -1,10 +1,13 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class HealthReport(BaseModel):
-    score: int = Field(ge=0, le=100)
+    # score de 0 a 100 — sem constraints min/max no schema porque a structured
+    # output de alguns provedores (Anthropic via OpenRouter) rejeita maximum/minimum
+    # em integer. O clamp é feito no serviço do agente.
+    score: int
     nivel: Literal["saudavel", "atencao", "critico"]
     positivos: list[str]
     atencao: list[str]

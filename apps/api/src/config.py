@@ -10,9 +10,10 @@ class Settings(BaseSettings):
     cron_secret: str = ""
     app_url: str = "http://localhost:5173"
 
-    # Agente de saúde financeira (LangChain + Claude + embeddings locais)
-    anthropic_api_key: str = ""
-    health_model: str = "claude-sonnet-4-6"
+    # Agente de saúde financeira (LangChain + Claude via OpenRouter + embeddings locais)
+    openrouter_api_key: str = ""
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
+    health_model: str = "anthropic/claude-sonnet-4.6"
     embed_model: str = "intfloat/multilingual-e5-small"
 
     @property

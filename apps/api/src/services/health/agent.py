@@ -1,6 +1,6 @@
 from typing import Any
 
-from langchain_anthropic import ChatAnthropic
+from langchain_openai import ChatOpenAI
 
 from src.config import settings
 from src.schemas.health_report import HealthReport
@@ -14,9 +14,10 @@ _SYSTEM = (
 
 
 def _invoke_llm(signals: dict[str, Any], rules: list[str]) -> HealthReport:
-    llm = ChatAnthropic(
+    llm = ChatOpenAI(
         model=settings.health_model,
-        api_key=settings.anthropic_api_key,
+        api_key=settings.openrouter_api_key,
+        base_url=settings.openrouter_base_url,
         temperature=0.2,
     ).with_structured_output(HealthReport)
     prompt = (
@@ -28,4 +29,6 @@ def _invoke_llm(signals: dict[str, Any], rules: list[str]) -> HealthReport:
 
 
 def analyze(signals: dict[str, Any], rules: list[str]) -> HealthReport:
-    return _invoke_llm(signals, rules)
+    report = _invoke_llm(signals, rules)
+    report.score = max(0, min(100, report.score))
+    return report
