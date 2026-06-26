@@ -1,33 +1,50 @@
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCategories } from '@/hooks/useCategories';
-import { useCreateTransaction } from '@/hooks/useTransactions';
+import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions';
 import { parseMoneyInput, todayISO } from '@/utils/format';
 import { TransactionInputSchema, type TransactionKind } from '@/types/schemas';
+
+export interface TransactionEditValues {
+  id: string;
+  tipo: TransactionKind;
+  valor: number;
+  descricao: string;
+  data: string;
+  categoria_id: string | null;
+}
 
 interface Props {
   workspaceId: string;
   onSuccess?: () => void;
   onCancel?: () => void;
   defaultKind?: TransactionKind;
+  mode?: 'create' | 'edit';
+  initialValues?: TransactionEditValues;
 }
 
 export default function TransactionForm({
   workspaceId,
   onSuccess,
   onCancel,
-  defaultKind = 'gasto'
+  defaultKind = 'gasto',
+  mode = 'create',
+  initialValues
 }: Props) {
   const { user } = useAuth();
-  const [tipo, setTipo] = useState<TransactionKind>(defaultKind);
-  const [valor, setValor] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [data, setData] = useState(todayISO());
-  const [categoriaId, setCategoriaId] = useState<string>('');
+  const [tipo, setTipo] = useState<TransactionKind>(initialValues?.tipo ?? defaultKind);
+  const [valor, setValor] = useState(
+    initialValues ? String(initialValues.valor).replace('.', ',') : ''
+  );
+  const [descricao, setDescricao] = useState(initialValues?.descricao ?? '');
+  const [data, setData] = useState(initialValues?.data ?? todayISO());
+  const [categoriaId, setCategoriaId] = useState<string>(initialValues?.categoria_id ?? '');
   const [error, setError] = useState<string | null>(null);
 
   const cats = useCategories(workspaceId, tipo);
   const createTx = useCreateTransaction(workspaceId);
+  const updateTx = useUpdateTransaction(workspaceId);
+  const pending = createTx.isPending || updateTx.isPending;
 
   const categorias = useMemo(() => cats.data ?? [], [cats.data]);
 
@@ -50,7 +67,20 @@ export default function TransactionForm({
         cartao_id: null,
         paga: true
       });
-      await createTx.mutateAsync({ ...input, created_by: user.id });
+      if (mode === 'edit' && initialValues) {
+        const patch = {
+          tipo: input.tipo,
+          valor: input.valor,
+          descricao: input.descricao,
+          data: input.data,
+          categoria_id: input.categoria_id,
+          cartao_id: input.cartao_id,
+          paga: input.paga
+        };
+        await updateTx.mutateAsync({ id: initialValues.id, patch });
+      } else {
+        await createTx.mutateAsync({ ...input, created_by: user.id });
+      }
       onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'erro_criar');
@@ -150,10 +180,10 @@ export default function TransactionForm({
         )}
         <button
           type="submit"
-          disabled={createTx.isPending}
+          disabled={pending}
           className="flex-1 bg-slate-900 text-white rounded-lg py-2 font-semibold disabled:opacity-50"
         >
-          {createTx.isPending ? 'Salvando…' : 'Salvar'}
+          {pending ? 'Salvando…' : 'Salvar'}
         </button>
       </div>
     </form>
