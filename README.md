@@ -1,4 +1,4 @@
-# CYT Finance v2
+# Dom Finance
 
 Gestão financeira pessoal e familiar — Supabase + FastAPI + React PWA.
 

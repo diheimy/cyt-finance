@@ -15,7 +15,7 @@ interface InvitePayload {
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const APP_URL = Deno.env.get("APP_URL") ?? "http://localhost:5173";
-const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "CYT Finance <noreply@cyt.finance>";
+const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "Dom Finance <noreply@cyt.finance>";
 
 serve(async (req) => {
   if (req.method !== "POST") {
@@ -37,8 +37,8 @@ serve(async (req) => {
   const link = `${APP_URL}/accept-invite?token=${encodeURIComponent(invite.token)}`;
   const html = `
     <div style="font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#0f172a">
-      <h1 style="font-family:Georgia,serif;color:#0f172a">CYT Finance</h1>
-      <p>Você foi convidado para um workspace familiar no CYT Finance.</p>
+      <h1 style="font-family:Georgia,serif;color:#0f172a">Dom Finance</h1>
+      <p>Você foi convidado para um workspace familiar no Dom Finance.</p>
       <p>Clique no botão abaixo para aceitar o convite (válido por 7 dias):</p>
       <p style="margin:24px 0">
         <a href="${link}" style="background:#10b981;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600">
@@ -66,7 +66,7 @@ serve(async (req) => {
     body: JSON.stringify({
       from: FROM_EMAIL,
       to: invite.email,
-      subject: "Você foi convidado para um workspace no CYT Finance",
+      subject: "Você foi convidado para um workspace no Dom Finance",
       html
     })
   });

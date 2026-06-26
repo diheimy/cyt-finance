@@ -22,7 +22,7 @@ export default function AppShell({ children }: { children?: ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-50 pb-20 md:pb-0 md:pl-60">
       <aside className="hidden md:flex fixed inset-y-0 left-0 w-60 bg-white border-r border-slate-200 flex-col p-4">
-        <h1 className="font-display text-2xl mb-1">CYT Finance</h1>
+        <h1 className="font-display text-2xl mb-1">Dom Finance</h1>
         {active && (
           <p className="text-xs text-slate-500 mb-6">
             {active.nome} · {active.role}

@@ -5,7 +5,7 @@ from src.config import settings
 from src.routers import health, recurring, reports
 
 app = FastAPI(
-    title="CYT Finance API",
+    title="Dom Finance API",
     version="0.1.0",
     description="Python services: PDF, recurring jobs, aggregations, external integrations.",
 )

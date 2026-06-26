@@ -2,7 +2,7 @@
   "name": "cyt-finance",
   "version": "0.1.0",
   "private": true,
-  "description": "CYT Finance v2 — gestão financeira pessoal e familiar (Supabase + FastAPI + React)",
+  "description": "Dom Finance — gestão financeira pessoal e familiar (Supabase + FastAPI + React)",
   "scripts": {
     "dev:web": "pnpm --filter @cyt/web dev",
     "build:web": "pnpm --filter @cyt/web build",

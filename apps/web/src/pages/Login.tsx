@@ -44,7 +44,7 @@ export default function Login() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-        <h1 className="font-display text-3xl text-slate-900 mb-1">CYT Finance</h1>
+        <h1 className="font-display text-3xl text-slate-900 mb-1">Dom Finance</h1>
         <p className="text-slate-500 text-sm mb-6">
           {mode === 'signin' ? 'Entre para gerenciar suas finanças' : 'Crie sua conta'}
         </p>
