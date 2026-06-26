@@ -56,6 +56,29 @@ export function useCreateInvestment(workspaceId: string | undefined) {
   });
 }
 
+export function useUpdateInvestment(workspaceId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      patch
+    }: {
+      id: string;
+      patch: Partial<Omit<InvestmentInput, 'workspace_id'>>;
+    }) => {
+      const { data, error } = await supabase
+        .from('investments')
+        .update(patch)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['investments', workspaceId] })
+  });
+}
+
 export function useDeleteInvestment(workspaceId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
