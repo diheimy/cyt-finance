@@ -5,7 +5,8 @@ import { useCategories } from '@/hooks/useCategories';
 import { useCards } from '@/hooks/useCards';
 import { useDeleteTransaction, useTransactions } from '@/hooks/useTransactions';
 import { Modal } from '@/components/Modal';
-import TransactionForm from '@/components/forms/TransactionForm';
+import { RowActions } from '@/components/RowActions';
+import TransactionForm, { type TransactionEditValues } from '@/components/forms/TransactionForm';
 import InstallmentForm from '@/components/forms/InstallmentForm';
 import { currentMonthKey, formatDateBR, formatMoney } from '@/utils/format';
 import type { TransactionFilters, TransactionKind } from '@/types/schemas';
@@ -23,6 +24,7 @@ export default function Transactions() {
   const [cartaoId, setCartaoId] = useState('');
   const [search, setSearch] = useState('');
   const [formOpen, setFormOpen] = useState<FormKind>(null);
+  const [editing, setEditing] = useState<TransactionEditValues | null>(null);
 
   const cats = useCategories(active?.id);
   const cards = useCards(active?.id);
@@ -172,18 +174,24 @@ export default function Transactions() {
               {t.tipo === 'entrada' ? '+' : '-'} {formatMoney(Number(t.valor))}
             </span>
             {canEdit && (
-              <button
-                onClick={() => {
-                  const msg = t.compra_id
+              <RowActions
+                onEdit={() =>
+                  setEditing({
+                    id: t.id,
+                    tipo: t.tipo,
+                    valor: Number(t.valor),
+                    descricao: t.descricao,
+                    data: t.data,
+                    categoria_id: t.categoria_id
+                  })
+                }
+                onDelete={() => del.mutate(t.id)}
+                confirmText={
+                  t.compra_id
                     ? 'Excluir APENAS esta parcela? As outras parcelas permanecem.'
-                    : 'Excluir esta transação?';
-                  if (confirm(msg)) del.mutate(t.id);
-                }}
-                className="text-slate-400 hover:text-red-600 px-2"
-                aria-label="Excluir"
-              >
-                ✕
-              </button>
+                    : 'Excluir esta transação?'
+                }
+              />
             )}
           </li>
         ))}
@@ -211,6 +219,18 @@ export default function Transactions() {
           onSuccess={() => setFormOpen(null)}
           onCancel={() => setFormOpen(null)}
         />
+      </Modal>
+
+      <Modal open={!!editing} onClose={() => setEditing(null)} title="Editar transação">
+        {editing && (
+          <TransactionForm
+            workspaceId={active.id}
+            mode="edit"
+            initialValues={editing}
+            onSuccess={() => setEditing(null)}
+            onCancel={() => setEditing(null)}
+          />
+        )}
       </Modal>
     </section>
   );

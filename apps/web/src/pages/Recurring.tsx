@@ -8,6 +8,7 @@ import {
   type RecurringRow
 } from '@/hooks/useRecurring';
 import { Modal } from '@/components/Modal';
+import { RowActions } from '@/components/RowActions';
 import RecurringForm from '@/components/forms/RecurringForm';
 import { formatDateBR, formatMoney } from '@/utils/format';
 
@@ -19,22 +20,13 @@ export default function Recurring() {
   const update = useUpdateRecurring(active?.id);
   const del = useDeleteRecurring(active?.id);
   const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<RecurringRow | null>(null);
 
   if (!active) return <p className="p-6">Carregando…</p>;
   const canEdit = active.role !== 'viewer';
 
   function toggleAtivo(r: RecurringRow) {
     update.mutate({ id: r.id, patch: { ativo: !r.ativo } });
-  }
-
-  function remove(r: RecurringRow) {
-    if (
-      confirm(
-        `Excluir regra "${r.descricao}"? O histórico de transações já materializadas permanece.`
-      )
-    ) {
-      del.mutate(r.id);
-    }
   }
 
   return (
@@ -111,13 +103,11 @@ export default function Recurring() {
                   >
                     {r.ativo ? 'Pausar' : 'Retomar'}
                   </button>
-                  <button
-                    onClick={() => remove(r)}
-                    className="text-slate-400 hover:text-red-600"
-                    aria-label="Excluir"
-                  >
-                    ✕
-                  </button>
+                  <RowActions
+                    onEdit={() => setEditing(r)}
+                    onDelete={() => del.mutate(r.id)}
+                    confirmText={`Excluir regra "${r.descricao}"? O histórico de transações já materializadas permanece.`}
+                  />
                 </div>
               )}
             </li>
@@ -131,6 +121,17 @@ export default function Recurring() {
           onSuccess={() => setFormOpen(false)}
           onCancel={() => setFormOpen(false)}
         />
+      </Modal>
+
+      <Modal open={!!editing} onClose={() => setEditing(null)} title="Editar regra recorrente">
+        {editing && (
+          <RecurringForm
+            workspaceId={active.id}
+            existing={editing}
+            onSuccess={() => setEditing(null)}
+            onCancel={() => setEditing(null)}
+          />
+        )}
       </Modal>
     </section>
   );

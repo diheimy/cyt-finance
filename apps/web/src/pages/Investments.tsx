@@ -1,8 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useActiveWorkspace, useWorkspaces } from '@/hooks/useWorkspace';
-import { useDeleteInvestment, useInvestments } from '@/hooks/useInvestments';
+import {
+  useDeleteInvestment,
+  useInvestments,
+  type InvestmentRow
+} from '@/hooks/useInvestments';
 import { Modal } from '@/components/Modal';
+import { RowActions } from '@/components/RowActions';
 import InvestmentForm from '@/components/forms/InvestmentForm';
 import { formatDateBR, formatMoney } from '@/utils/format';
 
@@ -13,6 +18,7 @@ export default function Investments() {
   const list = useInvestments(active?.id);
   const del = useDeleteInvestment(active?.id);
   const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<InvestmentRow | null>(null);
 
   const { total, porCategoria } = useMemo(() => {
     const rows = list.data ?? [];
@@ -79,15 +85,11 @@ export default function Investments() {
             </div>
             <span className="font-semibold text-blue-600">{formatMoney(Number(inv.valor))}</span>
             {canEdit && (
-              <button
-                onClick={() => {
-                  if (confirm('Excluir este aporte?')) del.mutate(inv.id);
-                }}
-                className="text-slate-400 hover:text-red-600 px-2"
-                aria-label="Excluir"
-              >
-                ✕
-              </button>
+              <RowActions
+                onEdit={() => setEditing(inv)}
+                onDelete={() => del.mutate(inv.id)}
+                confirmText="Excluir este aporte?"
+              />
             )}
           </li>
         ))}
@@ -99,6 +101,17 @@ export default function Investments() {
           onSuccess={() => setFormOpen(false)}
           onCancel={() => setFormOpen(false)}
         />
+      </Modal>
+
+      <Modal open={!!editing} onClose={() => setEditing(null)} title="Editar aporte">
+        {editing && (
+          <InvestmentForm
+            workspaceId={active.id}
+            existing={editing}
+            onSuccess={() => setEditing(null)}
+            onCancel={() => setEditing(null)}
+          />
+        )}
       </Modal>
     </section>
   );

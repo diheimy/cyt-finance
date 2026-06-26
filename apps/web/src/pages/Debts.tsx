@@ -21,6 +21,7 @@ export default function Debts() {
   const undo = useUndoInstallment(active?.id);
   const del = useDeleteDebt(active?.id);
   const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<DebtRow | null>(null);
 
   const totais = useMemo(() => {
     const rows = list.data ?? [];
@@ -145,10 +146,16 @@ export default function Debts() {
                     </button>
                   )}
                   <button
+                    onClick={() => setEditing(d)}
+                    className="text-slate-600 hover:text-slate-900 ml-auto"
+                  >
+                    Editar
+                  </button>
+                  <button
                     onClick={() => {
                       if (confirm(`Excluir dívida com "${d.pessoa}"?`)) del.mutate(d.id);
                     }}
-                    className="text-red-600 hover:text-red-800 ml-auto"
+                    className="text-red-600 hover:text-red-800"
                   >
                     Excluir
                   </button>
@@ -165,6 +172,17 @@ export default function Debts() {
           onSuccess={() => setFormOpen(false)}
           onCancel={() => setFormOpen(false)}
         />
+      </Modal>
+
+      <Modal open={!!editing} onClose={() => setEditing(null)} title="Editar dívida">
+        {editing && (
+          <DebtForm
+            workspaceId={active.id}
+            existing={editing}
+            onSuccess={() => setEditing(null)}
+            onCancel={() => setEditing(null)}
+          />
+        )}
       </Modal>
     </section>
   );
